@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "382716943935",
+    "project_id": "aponluyen",
+    "storage_bucket": "aponluyen.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:382716943935:android:4ce03556e970453d9ca28a",
+        "android_client_info": {
+          "package_name": "com.example.hoc_tap_on_luyen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCa4h6dRNA6rS4bOGAORGPRgIMGEErnQrQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
