@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "382716943935",
-    "project_id": "aponluyen",
-    "storage_bucket": "aponluyen.firebasestorage.app"
+    "project_number": "667433369105",
+    "project_id": "hoctaponluyen",
+    "storage_bucket": "hoctaponluyen.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:382716943935:android:4ce03556e970453d9ca28a",
+        "mobilesdk_app_id": "1:667433369105:android:ffe198621271b20df73bb0",
         "android_client_info": {
           "package_name": "com.example.hoc_tap_on_luyen"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCa4h6dRNA6rS4bOGAORGPRgIMGEErnQrQ"
+          "current_key": "AIzaSyDX_-s_SdBAQmAx3Tvcbi9gKQObEaOAoU4"
         }
       ],
       "services": {
