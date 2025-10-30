@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home.dart';
-import 'login.dart';
+import 'main_page.dart';
 
 class IntroScreen extends StatelessWidget {
   const IntroScreen({super.key});
@@ -28,9 +27,9 @@ class IntroScreen extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               ElevatedButton(
-                onPressed: () => Navigator.push(
+                onPressed: () => Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  MaterialPageRoute(builder: (_) => const MainPage()),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.indigo,
@@ -48,13 +47,7 @@ class IntroScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              TextButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HomeScreen()),
-                ),
-                child: const Text('Vào thẳng trang chủ (demo)'),
-              ),
+              // Có thể thêm nút khác nếu cần
             ],
           ),
         ),

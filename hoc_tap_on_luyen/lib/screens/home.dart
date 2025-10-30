@@ -1,132 +1,207 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'flashcard.dart';
-import 'quiz.dart';
-import 'about.dart';
-import 'login.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final _user = FirebaseAuth.instance.currentUser;
-
-  Future<void> _logout() async {
-    await FirebaseAuth.instance.signOut();
-    if (!mounted) return;
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-      (_) => false,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Bảng điều khiển'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Đăng xuất',
-            onPressed: _logout,
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+        elevation: 0,
+        backgroundColor: Colors.white,
+        title: Row(
+          children: const [
+            CircleAvatar(
+              radius: 22,
+              backgroundColor: Color(0xFFDCE5FF),
+              child: Icon(Icons.person, color: Colors.indigo),
+            ),
+            SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.account_circle,
-                  size: 100,
-                  color: Colors.indigo,
-                ),
-                const SizedBox(height: 16),
                 Text(
-                  _user?.email ?? 'Không xác định',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  'Xin chào, thangdd sjs',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 8),
                 Text(
-                  'UID: ${FirebaseAuth.instance.currentUser?.uid ?? "unknown"}',
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
-                ),
-                const SizedBox(height: 24),
-                const Divider(),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    _menuButton(
-                      context,
-                      title: 'Flashcard',
-                      icon: Icons.style,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const FlashcardScreen(),
-                        ),
-                      ),
-                    ),
-                    _menuButton(
-                      context,
-                      title: 'Quiz',
-                      icon: Icons.quiz,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const QuizScreen()),
-                      ),
-                    ),
-                    _menuButton(
-                      context,
-                      title: 'Giới thiệu',
-                      icon: Icons.info,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const AboutScreen()),
-                      ),
-                    ),
-                  ],
+                  'Bạn đang học IELTS',
+                  style: TextStyle(fontSize: 13, color: Colors.grey),
                 ),
               ],
             ),
-          ),
+          ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Khám phá',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+
+            // Ô chức năng khám phá
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: MediaQuery.of(context).size.width < 400
+                  ? 1.6
+                  : 1.8,
+              children: [
+                _featureCard(Icons.menu_book, 'My Courses', Colors.indigo),
+                _featureCard(Icons.schedule, 'Study Plan', Colors.blue),
+                _featureCard(Icons.quiz, 'Test Practice', Colors.orange),
+                _featureCard(Icons.add, 'Xem thêm', Colors.grey),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // Learning Profile
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Text(
+                  'Learning Profile',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  'Xem tất cả',
+                  style: TextStyle(color: Colors.indigo, fontSize: 14),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            _progressCard(),
+
+            const SizedBox(height: 20),
+
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 2.1,
+              children: [
+                _statCard(
+                  'Tổng thời lượng',
+                  '0 phút',
+                  Icons.timer,
+                  Colors.blue,
+                ),
+                _statCard(
+                  'Tổng số cúp',
+                  '0',
+                  Icons.emoji_events,
+                  Colors.orange,
+                ),
+                _statCard(
+                  'Số bài test đã làm',
+                  '0',
+                  Icons.assignment,
+                  Colors.purple,
+                ),
+                _statCard('Số bài đã học', '0', Icons.school, Colors.green),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _menuButton(
-    BuildContext context, {
-    required String title,
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-        backgroundColor: Colors.indigo.shade50,
-        foregroundColor: Colors.indigo,
-        minimumSize: const Size(140, 60),
+  Widget _featureCard(IconData icon, String title, Color color) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.indigo.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
       ),
-      icon: Icon(icon, size: 26),
-      label: Text(title, style: const TextStyle(fontSize: 16)),
-      onPressed: onTap,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _progressCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12.withValues(alpha: 0.05),
+            blurRadius: 5,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          Text(
+            'Trình độ IELTS của bạn',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [Text('Đầu vào'), Text('Dự đoán'), Text('Mục tiêu')],
+          ),
+          SizedBox(height: 8),
+          LinearProgressIndicator(
+            value: 0.4,
+            color: Colors.indigo,
+            backgroundColor: Colors.indigoAccent,
+            minHeight: 5,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statCard(String title, String value, IconData icon, Color color) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.indigo.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 13, color: Colors.black54),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
     );
   }
 }

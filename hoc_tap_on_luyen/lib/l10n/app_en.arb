@@ -1,0 +1,13 @@
+{
+	"@@locale": "en",
+	"appTitle": "Study & Practice",
+	"tabHome": "Home",
+	"tabQuiz": "Quiz",
+	"tabFlashcard": "Flashcard Topics",
+	"tabAccount": "Account",
+	"introStart": "Start learning",
+	"profileLanguage": "Language",
+	"languageEnglish": "English",
+	"languageVietnamese": "Vietnamese",
+	"languageChanged": "Language changed"
+}

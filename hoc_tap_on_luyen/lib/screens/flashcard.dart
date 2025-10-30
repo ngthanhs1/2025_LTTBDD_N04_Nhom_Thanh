@@ -6,11 +6,14 @@ class FlashcardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Flashcard')),
+      appBar: AppBar(
+        title: const Text('Study Plan - Flashcard'),
+        backgroundColor: Colors.indigo,
+      ),
       body: const Center(
         child: Text(
-          'Màn hình Flashcard - nơi học từ vựng',
-          style: TextStyle(fontSize: 18),
+          'Trang Flashcard (Study Plan)',
+          style: TextStyle(fontSize: 18, color: Colors.black54),
         ),
       ),
     );
