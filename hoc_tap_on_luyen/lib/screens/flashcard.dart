@@ -1,155 +1,174 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/flashcard.dart';
 import '../services/firestore_service.dart';
-import '../models/quiz.dart';
-import 'create_topic.dart';
-import 'topic_detail.dart';
 
-class FlashcardScreen extends StatelessWidget {
+class FlashcardScreen extends StatefulWidget {
   const FlashcardScreen({super.key});
 
   @override
+  State<FlashcardScreen> createState() => _FlashcardScreenState();
+}
+
+class _FlashcardScreenState extends State<FlashcardScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  bool _isFront = true;
+  int _index = 0;
+  List<Flashcard> _cards = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _loadCards();
+  }
+
+  Future<void> _loadCards() async {
+    final cards = await FirestoreService.instance.getFlashcards();
+    setState(() {
+      _cards = cards;
+      _loading = false;
+    });
+  }
+
+  void _flipCard() {
+    if (_isFront) {
+      _controller.forward();
+    } else {
+      _controller.reverse();
+    }
+    _isFront = !_isFront;
+  }
+
+  void _nextCard() {
+    if (_index < _cards.length - 1) {
+      setState(() {
+        _index++;
+        _isFront = true;
+        _controller.reset();
+      });
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Đã hết thẻ!")));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isNarrow = MediaQuery.of(context).size.width < 400;
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (_cards.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Ôn tập Flashcard"),
+          backgroundColor: Colors.indigo,
+        ),
+        body: const Center(
+          child: Text(
+            "Chưa có thẻ nào.\nHãy thêm thẻ học trong Firestore!",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
+    final card = _cards[_index];
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Study Plan - Flashcard'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-        actions: [
-          IconButton(
-            tooltip: 'Thêm chủ đề',
-            icon: const Icon(Icons.add),
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CreateTopicScreen()),
+        title: Text("Thẻ ${_index + 1}/${_cards.length}"),
+        centerTitle: true,
+        backgroundColor: Colors.indigo,
+      ),
+      body: Center(
+        child: GestureDetector(
+          onTap: _flipCard,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              final angle = _controller.value * pi;
+              final transform = Matrix4.identity()
+                ..setEntry(3, 2, 0.001)
+                ..rotateY(angle);
+
+              return Transform(
+                transform: transform,
+                alignment: Alignment.center,
+                child: Container(
+                  width: 320,
+                  height: 220,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.indigo.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 6,
+                        offset: Offset(2, 4),
+                      ),
+                    ],
+                  ),
+                  child: _controller.value < 0.5
+                      ? Text(
+                          card.front,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        )
+                      : Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.rotationY(pi),
+                          child: Text(
+                            card.back,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.indigo,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                ),
               );
             },
           ),
-        ],
+        ),
       ),
-      body: SingleChildScrollView(
+      bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Tổng quan học tập',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        child: ElevatedButton.icon(
+          icon: const Icon(Icons.arrow_forward_ios),
+          label: const Text("Thẻ tiếp theo"),
+          onPressed: _nextCard,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.indigo,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            textStyle: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
             ),
-            const SizedBox(height: 12),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: isNarrow ? 2.0 : 2.2,
-              children: [
-                _statCard(
-                  'Tổng số chủ đề',
-                  Icons.menu_book_outlined,
-                  Colors.indigo,
-                ),
-                _statCard('Tổng số thẻ', Icons.style, Colors.blue),
-                _statCard('Đã học', Icons.check_circle, Colors.green),
-                _statCard('Còn lại', Icons.hourglass_bottom, Colors.orange),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Danh sách chủ đề',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            StreamBuilder<List<Topic>>(
-              stream: FirestoreService.instance.streamTopics(),
-              builder: (context, snap) {
-                if (snap.connectionState == ConnectionState.waiting) {
-                  return const Padding(
-                    padding: EdgeInsets.all(32),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-                final topics = snap.data ?? const <Topic>[];
-                if (topics.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.all(32),
-                    child: Center(
-                      child: Text('Chưa có chủ đề nào. Hãy bấm dấu + để thêm.'),
-                    ),
-                  );
-                }
-                return Column(
-                  children: topics.map((t) {
-                    return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListTile(
-                        leading: const Icon(
-                          Icons.menu_book_outlined,
-                          color: Colors.indigo,
-                        ),
-                        title: Text(
-                          t.name,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: FutureBuilder<int>(
-                          future: FirestoreService.instance.countQuestions(
-                            t.id,
-                          ),
-                          builder: (context, c) => Text('${c.data ?? 0} thẻ'),
-                        ),
-                        trailing: const Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 16,
-                        ),
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => TopicDetailScreen(topic: t),
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                );
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _statCard(String title, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: color.withOpacity(0.15),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }

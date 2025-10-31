@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import '../models/flashcard.dart';
 import '../models/quiz.dart';
 
 class FirestoreService {
@@ -76,5 +76,25 @@ class FirestoreService {
   Future<int> countQuestions(String topicId) async {
     final agg = await _questionsCol(topicId).count().get();
     return agg.count ?? 0;
+  }
+
+  Future<List<Flashcard>> getFlashcards() async {
+    final snapshot = await _db
+        .collection('flashcards')
+        .orderBy('createdAt', descending: false)
+        .get();
+
+    return snapshot.docs
+        .map((doc) => Flashcard.fromDoc(doc.id, doc.data()))
+        .toList();
+  }
+
+  // Thêm flashcard mới
+  Future<void> addFlashcard(String front, String back) async {
+    await _db.collection('flashcards').add({
+      'front': front,
+      'back': back,
+      'createdAt': DateTime.now().millisecondsSinceEpoch,
+    });
   }
 }

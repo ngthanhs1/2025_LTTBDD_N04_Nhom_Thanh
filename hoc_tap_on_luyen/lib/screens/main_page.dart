@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home.dart';
-import 'quiz.dart';
+import 'Quiz/quiz_home.dart';
+import '../models/flashcard.dart';
 import 'flashcard.dart';
 import 'profile.dart';
 
@@ -15,7 +16,7 @@ class _MainPageState extends State<MainPage> {
 
   final _screens = const [
     HomeScreen(),
-    QuizScreen(),
+    QuizHomeScreen(),
     FlashcardScreen(),
     ProfileScreen(),
   ];
