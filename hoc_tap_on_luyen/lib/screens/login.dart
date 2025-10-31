@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
-import 'signup.dart';
-import 'main_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_service.dart';
+import 'main_page.dart';
+import 'signup.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,12 +27,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
+
     setState(() => _loading = true);
     try {
       await AuthService.instance.signIn(
         email: _email.text,
         password: _password.text,
       );
+
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
@@ -44,110 +46,111 @@ class _LoginScreenState extends State<LoginScreen> {
         msg = 'Email chưa đăng ký.';
       } else if (e.code == 'wrong-password') {
         msg = 'Mật khẩu không đúng.';
-      } else if (e.code == 'invalid-email') {
-        msg = 'Email không hợp lệ.';
-      } else if (e.code == 'user-disabled') {
-        msg = 'Tài khoản đã bị vô hiệu hóa.';
       } else {
         msg = 'Đăng nhập thất bại: ${e.message}';
       }
+
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
-  Future<void> _resetPassword() async {
-    if (_email.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nhập email để đặt lại mật khẩu')),
-      );
-      return;
-    }
-    await AuthService.instance.sendResetEmail(_email.text);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã gửi email đặt lại mật khẩu')),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Đăng nhập')),
+      backgroundColor: const Color(0xFF2E0854),
       body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    controller: _email,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Hi user\nWelcome back",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                TextFormField(
+                  controller: _email,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _inputDecoration("Enter your email id"),
+                  validator: (v) => (v == null || !v.contains('@'))
+                      ? 'Email không hợp lệ'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: _password,
+                  obscureText: _obscure,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _inputDecoration("Your Password", true),
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Nhập mật khẩu' : null,
+                ),
+                const SizedBox(height: 24),
+
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purpleAccent,
+                    minimumSize: const Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                    validator: (v) => (v == null || !v.contains('@'))
-                        ? 'Email không hợp lệ'
-                        : null,
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _password,
-                    obscureText: _obscure,
-                    decoration: InputDecoration(
-                      labelText: 'Mật khẩu',
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        onPressed: () => setState(() => _obscure = !_obscure),
-                        icon: Icon(
-                          _obscure ? Icons.visibility : Icons.visibility_off,
-                        ),
-                      ),
-                    ),
-                    validator: (v) => (v == null || v.length < 6)
-                        ? 'Tối thiểu 6 ký tự'
-                        : null,
+                  onPressed: _loading ? null : _login,
+                  child: _loading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text("Log In", style: TextStyle(fontSize: 16)),
+                ),
+                const SizedBox(height: 16),
+
+                TextButton(
+                  onPressed: () => Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SignupScreen()),
                   ),
-                  const SizedBox(height: 20),
-                  FilledButton(
-                    onPressed: _loading ? null : _login,
-                    child: _loading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Đăng nhập'),
+                  child: const Text(
+                    "Don’t have an account ? Register",
+                    style: TextStyle(color: Colors.pinkAccent),
                   ),
-                  TextButton(
-                    onPressed: _loading ? null : _resetPassword,
-                    child: const Text('Quên mật khẩu?'),
-                  ),
-                  const Divider(height: 32),
-                  OutlinedButton(
-                    onPressed: _loading
-                        ? null
-                        : () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SignupScreen(),
-                            ),
-                          ),
-                    child: const Text('Tạo tài khoản mới'),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint, [bool isPassword = false]) {
+    return InputDecoration(
+      filled: true,
+      fillColor: Colors.white.withOpacity(0.2),
+      hintText: hint,
+      hintStyle: const TextStyle(color: Colors.white70),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20),
+        borderSide: BorderSide.none,
+      ),
+      suffixIcon: isPassword
+          ? IconButton(
+              icon: Icon(
+                _obscure ? Icons.visibility : Icons.visibility_off,
+                color: Colors.white70,
+              ),
+              onPressed: () => setState(() => _obscure = !_obscure),
+            )
+          : null,
     );
   }
 }

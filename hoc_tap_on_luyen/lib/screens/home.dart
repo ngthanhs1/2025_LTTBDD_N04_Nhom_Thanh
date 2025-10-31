@@ -5,6 +5,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 400;
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -44,17 +46,13 @@ class HomeScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-
-            // Ô chức năng khám phá
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: MediaQuery.of(context).size.width < 400
-                  ? 1.6
-                  : 1.8,
+              childAspectRatio: isNarrow ? 1.6 : 1.8,
               children: [
                 _featureCard(Icons.menu_book, 'My Courses', Colors.indigo),
                 _featureCard(Icons.schedule, 'Study Plan', Colors.blue),
@@ -62,10 +60,7 @@ class HomeScreen extends StatelessWidget {
                 _featureCard(Icons.add, 'Xem thêm', Colors.grey),
               ],
             ),
-
             const SizedBox(height: 24),
-
-            // Learning Profile
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
@@ -80,18 +75,15 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-
             _progressCard(),
-
             const SizedBox(height: 20),
-
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: 2.1,
+              childAspectRatio: isNarrow ? 2.0 : 2.2,
               children: [
                 _statCard(
                   'Tổng thời lượng',
@@ -123,18 +115,18 @@ class HomeScreen extends StatelessWidget {
   Widget _featureCard(IconData icon, String title, Color color) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.indigo.withValues(alpha: 0.05),
+        color: color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 28),
+            Icon(icon, color: color, size: 30),
             const SizedBox(height: 8),
             Text(
               title,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
             ),
           ],
         ),
@@ -149,10 +141,7 @@ class HomeScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black12.withValues(alpha: 0.05),
-            blurRadius: 5,
-          ),
+          BoxShadow(color: Colors.black12.withOpacity(0.05), blurRadius: 5),
         ],
       ),
       child: Column(
@@ -182,14 +171,17 @@ class HomeScreen extends StatelessWidget {
   Widget _statCard(String title, String value, IconData icon, Color color) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.indigo.withValues(alpha: 0.05),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: Colors.black12.withOpacity(0.05), blurRadius: 5),
+        ],
       ),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color),
+          Icon(icon, color: color, size: 28),
           const SizedBox(height: 8),
           Text(
             title,

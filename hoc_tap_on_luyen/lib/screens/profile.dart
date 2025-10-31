@@ -26,7 +26,6 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // --- Hồ sơ người dùng ---
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -59,19 +58,18 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
-
-            // --- Danh sách chức năng ---
-            _menuItem(Icons.person, 'Thông tin tài khoản', () {}),
-            _menuItem(Icons.lock_outline, 'Đổi mật khẩu', () {}),
-            _menuItem(Icons.language, 'Ngôn ngữ', () {}),
-            _menuItem(Icons.privacy_tip_outlined, 'Chính sách bảo mật', () {}),
-
+            _item(context, Icons.person, 'Thông tin tài khoản', () {}),
+            _item(context, Icons.lock_outline, 'Đổi mật khẩu', () {}),
+            _item(context, Icons.language, 'Ngôn ngữ', () {}),
+            _item(
+              context,
+              Icons.privacy_tip_outlined,
+              'Chính sách bảo mật',
+              () {},
+            ),
             const SizedBox(height: 10),
-
-            // --- Nút đăng xuất ---
-            _menuItem(Icons.logout, 'Đăng xuất', () async {
+            _item(context, Icons.logout, 'Đăng xuất', () async {
               await AuthService.instance.signOut();
               if (context.mounted) {
                 Navigator.pushAndRemoveUntil(
@@ -80,11 +78,10 @@ class ProfileScreen extends StatelessWidget {
                   (_) => false,
                 );
               }
-            }, color: Colors.red),
-
+            }, color: Colors.redAccent),
             const SizedBox(height: 20),
             const Text(
-              'Phiên bản: 2.27.11',
+              'Phiên bản: 1.0.0',
               style: TextStyle(color: Colors.grey, fontSize: 12),
             ),
           ],
@@ -93,8 +90,8 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // --- Widget cho từng dòng menu ---
-  Widget _menuItem(
+  Widget _item(
+    BuildContext context,
     IconData icon,
     String title,
     VoidCallback onTap, {

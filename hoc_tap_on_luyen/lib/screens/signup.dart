@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // ✅ cần import
+import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
-import 'main_page.dart';
+import 'login.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -43,10 +43,16 @@ class _SignupScreenState extends State<SignupScreen> {
       );
 
       if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Đăng ký thành công! Vui lòng đăng nhập.'),
+        ),
+      );
+
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const MainPage()),
-        (_) => false,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
       );
     } on FirebaseAuthException catch (e) {
       String msg;
@@ -69,76 +75,107 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Đăng ký')),
+      backgroundColor: const Color(0xFF2E0854), // tím đậm
       body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    controller: _email,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Create your Account",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                TextFormField(
+                  controller: _email,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _inputDecoration("Enter your email id"),
+                  validator: (v) => (v == null || !v.contains('@'))
+                      ? 'Email không hợp lệ'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: _password,
+                  obscureText: _obscure,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _inputDecoration("Your Password", true),
+                  validator: (v) =>
+                      (v == null || v.length < 6) ? 'Tối thiểu 6 ký tự' : null,
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: _password2,
+                  obscureText: _obscure,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _inputDecoration("Re-enter Password", true),
+                  validator: (v) =>
+                      (v == null || v.length < 6) ? 'Tối thiểu 6 ký tự' : null,
+                ),
+                const SizedBox(height: 24),
+
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purpleAccent,
+                    minimumSize: const Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                    validator: (v) => (v == null || !v.contains('@'))
-                        ? 'Email không hợp lệ'
-                        : null,
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _password,
-                    obscureText: _obscure,
-                    decoration: InputDecoration(
-                      labelText: 'Mật khẩu',
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        onPressed: () => setState(() => _obscure = !_obscure),
-                        icon: Icon(
-                          _obscure ? Icons.visibility : Icons.visibility_off,
-                        ),
-                      ),
-                    ),
-                    validator: (v) => (v == null || v.length < 6)
-                        ? 'Tối thiểu 6 ký tự'
-                        : null,
+                  onPressed: _loading ? null : _signup,
+                  child: _loading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text("Register", style: TextStyle(fontSize: 16)),
+                ),
+                const SizedBox(height: 16),
+
+                TextButton(
+                  onPressed: () => Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _password2,
-                    obscureText: _obscure,
-                    decoration: const InputDecoration(
-                      labelText: 'Nhập lại mật khẩu',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (v) => (v == null || v.length < 6)
-                        ? 'Tối thiểu 6 ký tự'
-                        : null,
+                  child: const Text(
+                    "Already have an account ? Login",
+                    style: TextStyle(color: Colors.pinkAccent),
                   ),
-                  const SizedBox(height: 20),
-                  FilledButton(
-                    onPressed: _loading ? null : _signup,
-                    child: _loading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Tạo tài khoản'),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint, [bool isPassword = false]) {
+    return InputDecoration(
+      filled: true,
+      fillColor: Colors.white.withOpacity(0.2),
+      hintText: hint,
+      hintStyle: const TextStyle(color: Colors.white70),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20),
+        borderSide: BorderSide.none,
+      ),
+      suffixIcon: isPassword
+          ? IconButton(
+              icon: Icon(
+                _obscure ? Icons.visibility : Icons.visibility_off,
+                color: Colors.white70,
+              ),
+              onPressed: () => setState(() => _obscure = !_obscure),
+            )
+          : null,
     );
   }
 }
