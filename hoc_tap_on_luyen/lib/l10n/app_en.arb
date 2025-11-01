@@ -10,4 +10,14 @@
 	"languageEnglish": "English",
 	"languageVietnamese": "Vietnamese",
 	"languageChanged": "Language changed"
+
+  "@@locale": "en",
+  "titleAccount": "Account",
+  "intro": "Profile introduction",
+  "profileInfo": "Account information",
+  "changePassword": "Change password",
+  "language": "Language",
+  "privacy": "Privacy policy",
+  "logout": "Logout"
+
 }

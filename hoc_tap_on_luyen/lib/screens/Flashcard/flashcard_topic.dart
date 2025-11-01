@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../models/flashcard.dart';
 import '../../services/firestore_service.dart';
 import 'add_tu.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class FlashcardTopicScreen extends StatefulWidget {
   const FlashcardTopicScreen({super.key, required this.topic});
@@ -16,6 +17,8 @@ class FlashcardTopicScreen extends StatefulWidget {
 class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  late FlutterTts _tts;
+
   bool _front = true;
   int _index = 0;
   bool _autoMode = false;
@@ -39,6 +42,12 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
+
+    //Khởi tạo TTS
+    _tts = FlutterTts();
+    _tts.setLanguage("en-US"); // bạn có thể đổi thành "vi-VN"
+    _tts.setSpeechRate(0.4);
+    _tts.setPitch(1.0);
   }
 
   void _flip() {
@@ -59,6 +68,7 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
     if (_index > 0) setState(() => _index--);
   }
 
+  /// 🔁 Bật / tắt chế độ tự động
   void _toggleAuto(List<Flashcard> cards) {
     if (_autoMode) {
       _timer?.cancel();
@@ -67,10 +77,15 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
     }
 
     _autoMode = true;
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) async {
       if (!mounted) return;
       _flip();
-      Future.delayed(const Duration(seconds: 1), () {
+
+      // Nếu đang ở mặt trước thì đọc nội dung
+      final textToSpeak = _front ? cards[_index].front : cards[_index].back;
+      await _tts.speak(textToSpeak);
+
+      Future.delayed(const Duration(seconds: 2), () {
         if (_front && _index < cards.length - 1) {
           setState(() => _index++);
         } else if (_front && _index == cards.length - 1) {
@@ -84,6 +99,7 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
   @override
   void dispose() {
     _controller.dispose();
+    _tts.stop();
     _timer?.cancel();
     super.dispose();
   }
@@ -190,13 +206,16 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
+                    // 🎤 Nút phát âm
                     _BottomControl(
                       icon: Icons.volume_up_rounded,
-                      label: 'Chơi',
-                      onTap: () {
-                        // TODO: thêm chức năng sau
+                      label: 'Phát âm',
+                      onTap: () async {
+                        final textToSpeak = _front ? card.front : card.back;
+                        await _tts.speak(textToSpeak);
                       },
                     ),
+                    // 🎨 Đổi màu thẻ
                     _BottomControl(
                       icon: Icons.color_lens_rounded,
                       label: 'Màu',
@@ -209,6 +228,7 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                         if (color != null) setState(() => _cardColor = color);
                       },
                     ),
+                    // ✏️ Chỉnh sửa thẻ
                     _BottomControl(
                       icon: Icons.edit_rounded,
                       label: 'Chỉnh sửa',
@@ -222,6 +242,7 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                         );
                       },
                     ),
+                    // 🔁 Tự động đọc và lật
                     _BottomControl(
                       icon: Icons.autorenew_rounded,
                       label: _autoMode ? 'Dừng' : 'Tự động',

@@ -10,4 +10,14 @@
 	"languageEnglish": "Tiếng Anh",
 	"languageVietnamese": "Tiếng Việt",
 	"languageChanged": "Đã đổi ngôn ngữ"
+
+  "@@locale": "vi",
+  "titleAccount": "Tài khoản",
+  "intro": "Giới thiệu cá nhân",
+  "profileInfo": "Thông tin tài khoản",
+  "changePassword": "Đổi mật khẩu",
+  "language": "Ngôn ngữ",
+  "privacy": "Chính sách bảo mật",
+  "logout": "Đăng xuất"
+
 }
