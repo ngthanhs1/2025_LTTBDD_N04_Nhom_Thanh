@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'login.dart'; // 👈 thêm import trang đăng nhập
+import 'login.dart';
 
 class IntroScreen extends StatelessWidget {
   const IntroScreen({super.key});

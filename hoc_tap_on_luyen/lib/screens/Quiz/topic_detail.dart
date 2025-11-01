@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/quiz.dart';
 import '../../services/firestore_service.dart';
-import '../add_question.dart';
+import 'add_question.dart';
 
 class TopicDetailScreen extends StatelessWidget {
   final Topic topic;

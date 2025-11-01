@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'home.dart';
 import 'Quiz/quiz_home.dart';
 import '../models/flashcard.dart';
-import 'flashcard.dart';
-import 'profile.dart';
+import 'Flashcard/flashcard.dart';
+import 'Taikhoan/profile.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});

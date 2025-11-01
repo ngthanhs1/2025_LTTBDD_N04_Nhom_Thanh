@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/firestore_service.dart';
+import '../../services/firestore_service.dart';
 
 class AddQuestionScreen extends StatefulWidget {
   final String topicId;

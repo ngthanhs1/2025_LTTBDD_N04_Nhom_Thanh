@@ -121,9 +121,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         final isCorrect = i == q['correctIndex'];
                         return Text(
                           '${String.fromCharCode(65 + i)}. ${q['options'][i]}'
-                          '${isCorrect ? " ✅" : ""}',
+                          '${isCorrect ? "" : ""}',
                           style: TextStyle(
-                            color: isCorrect ? Colors.green : Colors.black87,
+                            color: isCorrect
+                                ? const Color.fromARGB(255, 197, 231, 198)
+                                : Colors.black87,
                           ),
                         );
                       }),
