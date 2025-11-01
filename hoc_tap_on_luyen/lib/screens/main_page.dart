@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'home.dart';
 import 'Quiz/quiz_home.dart';
 import '../models/flashcard.dart';
-import 'Flashcard/flashcard.dart';
+import 'Flashcard/flashcard_home.dart';
 import 'Taikhoan/profile.dart';
 
 class MainPage extends StatefulWidget {
@@ -17,7 +17,7 @@ class _MainPageState extends State<MainPage> {
   final _screens = const [
     HomeScreen(),
     QuizHomeScreen(),
-    FlashcardScreen(),
+    FlashcardHomeScreen(),
     ProfileScreen(),
   ];
 

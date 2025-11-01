@@ -41,6 +41,11 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+    dependencies {
+    implementation("com.android.tools.build:gradle:8.3.0")
+    implementation("com.google.gms:google-services:4.4.2")
+}
+
 }
 
 flutter {

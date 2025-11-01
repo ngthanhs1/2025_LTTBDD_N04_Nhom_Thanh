@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/flashcard.dart';
 import '../models/quiz.dart';
+import 'package:flutter/foundation.dart';
 
 class FirestoreService {
   FirestoreService._();
@@ -10,25 +11,29 @@ class FirestoreService {
   final _db = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
 
+  // ==================== QUIZ ====================
+
   CollectionReference<Map<String, dynamic>> get _topicsCol =>
       _db.collection('topics');
 
   DocumentReference<Map<String, dynamic>> _topicDoc(String topicId) =>
       _topicsCol.doc(topicId);
+
   CollectionReference<Map<String, dynamic>> _questionsCol(String topicId) =>
       _topicDoc(topicId).collection('questions');
 
-  // Topics
+  // Thêm topic quiz
   Future<String> addTopic(String name) async {
     final uid = _auth.currentUser?.uid;
     final doc = await _topicsCol.add({
       'name': name.trim(),
       'createdBy': uid,
-      'createdAt': DateTime.now().millisecondsSinceEpoch,
+      'createdAt': FieldValue.serverTimestamp(),
     });
     return doc.id;
   }
 
+  // Stream topics quiz
   Stream<List<Topic>> streamTopics() {
     final uid = _auth.currentUser?.uid;
     Query<Map<String, dynamic>> q = _topicsCol.orderBy(
@@ -36,7 +41,7 @@ class FirestoreService {
       descending: true,
     );
     if (uid != null) {
-      // Lọc theo người tạo (nếu muốn). Có thể bỏ nếu muốn xem tất cả.
+      // Có thể lọc theo user nếu cần
       // q = q.where('createdBy', isEqualTo: uid);
     }
     return q.snapshots().map(
@@ -44,7 +49,7 @@ class FirestoreService {
     );
   }
 
-  // Questions
+  // Stream questions quiz
   Stream<List<Question>> streamQuestions(String topicId) {
     return _questionsCol(topicId)
         .orderBy('text')
@@ -78,23 +83,89 @@ class FirestoreService {
     return agg.count ?? 0;
   }
 
-  Future<List<Flashcard>> getFlashcards() async {
-    final snapshot = await _db
-        .collection('flashcards')
-        .orderBy('createdAt', descending: false)
-        .get();
+  // ==================== FLASHCARD ====================
 
-    return snapshot.docs
-        .map((doc) => Flashcard.fromDoc(doc.id, doc.data()))
-        .toList();
+  CollectionReference<Map<String, dynamic>> get _flashTopics =>
+      _db.collection('flash_topics');
+
+  DocumentReference<Map<String, dynamic>> _flashTopicDoc(String topicId) =>
+      _flashTopics.doc(topicId);
+
+  CollectionReference<Map<String, dynamic>> _flashCards(String topicId) =>
+      _flashTopicDoc(topicId).collection('cards');
+
+  // Tạo chủ đề flashcard
+  Future<String> addFlashTopic(String name) async {
+    final doc = await _flashTopics.add({
+      'name': name.trim(),
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+    return doc.id;
   }
 
-  // Thêm flashcard mới
-  Future<void> addFlashcard(String front, String back) async {
-    await _db.collection('flashcards').add({
-      'front': front,
-      'back': back,
-      'createdAt': DateTime.now().millisecondsSinceEpoch,
+  // Lắng nghe danh sách chủ đề flashcard
+  Stream<List<ChuDe>> streamFlashTopics() {
+    return _flashTopics
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs.map((d) => ChuDe.fromDoc(d)).toList());
+  }
+
+  // Đếm số thẻ trong 1 chủ đề
+  Future<int> countFlashcards(String topicId) async {
+    final agg = await _flashCards(topicId).count().get();
+    return agg.count ?? 0;
+    // Nếu SDK chưa hỗ trợ count() -> fallback:
+    // final qs = await _flashCards(topicId).get();
+    // return qs.docs.length;
+  }
+
+  // Thêm thẻ
+  Future<void> addFlashcard({
+    required String topicId,
+    required String front,
+    required String back,
+    String note = '',
+  }) async {
+    await _flashCards(topicId).add({
+      'front': front.trim(),
+      'back': back.trim(),
+      'note': note.trim(),
+      'starred': false,
+      'createdAt': FieldValue.serverTimestamp(),
     });
+  }
+
+  // Lắng nghe thẻ theo chủ đề
+  Stream<List<Flashcard>> streamCards(String topicId) {
+    return _flashCards(topicId)
+        .orderBy('createdAt', descending: false)
+        .snapshots()
+        .map((snap) => snap.docs.map((d) => Flashcard.fromDoc(d)).toList());
+  }
+
+  // Cập nhật flashcard hiện có
+  Future<void> updateFlashcard({
+    required String topicId,
+    required String cardId,
+    required String front,
+    required String back,
+    required String note,
+  }) async {
+    try {
+      await _db
+          .collection('flash_topics')
+          .doc(topicId)
+          .collection('cards')
+          .doc(cardId)
+          .update({
+            'front': front.trim(),
+            'back': back.trim(),
+            'note': note.trim(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+    } catch (e) {
+      debugPrint('Lỗi cập nhật flashcard: $e');
+    }
   }
 }
