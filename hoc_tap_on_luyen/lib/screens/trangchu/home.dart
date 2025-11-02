@@ -18,7 +18,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Hiển thị ngay dữ liệu mặc định để tránh trễ lần đầu
     _cachedStats = {
       'studyTime': 0,
       'quizDone': 0,
@@ -174,13 +173,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Expanded(
                               child: _KeyVal(
-                                label: 'Đã làm',
+                                label: 'Số phiên',
                                 value: '${stats['quizDone']}',
                               ),
                             ),
                             Expanded(
                               child: _KeyVal(
-                                label: 'Điểm TB',
+                                label: 'Độ chính xác TB',
                                 value: '${stats['avgScore']}%',
                               ),
                             ),
@@ -228,9 +227,21 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        _KeyVal(
-                          label: 'Đã học',
-                          value: '${stats['flashLearned']} thẻ',
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _KeyVal(
+                                label: 'Số phiên',
+                                value: '${stats['flashSessions']}',
+                              ),
+                            ),
+                            Expanded(
+                              child: _KeyVal(
+                                label: 'Độ chính xác TB',
+                                value: '${stats['flashAccuracy']}%',
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -239,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 20),
 
-                // --- BIỂU ĐỒ THỜI GIAN THÁNG NÀY ---
+                // --- HOẠT ĐỘNG THEO NGÀY (THÁNG NÀY) ---
                 _UsageChartCard(dailyUsage: dailyUsage),
               ],
             ),
@@ -251,33 +262,40 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // --- LOAD DỮ LIỆU CÓ CACHE + CHẠY SONG SONG ---
   Future<Map<String, dynamic>> _loadStats() async {
-    if (_cachedStats != null) return _cachedStats!;
-
+    // Luôn tải mới nhưng dùng _cachedStats để hiển thị tạm thời khi chờ
     final results = await Future.wait([
-      FirestoreService.instance.countQuizTopics(),
-      FirestoreService.instance.countAllQuestions(),
-      FirestoreService.instance.countFlashTopics(),
-      FirestoreService.instance.countAllFlashcards(),
+      FirestoreService.instance.getQuizSummary(), // 0
+      FirestoreService.instance.getFlashPracticeSummary(), // 1
+      FirestoreService.instance.countQuizTopics(), // 2
+      FirestoreService.instance.countAllQuestions(), // 3
+      FirestoreService.instance.countFlashTopics(), // 4
+      FirestoreService.instance.countAllFlashcards(), // 5
+      FirestoreService.instance.getDailyActivityThisMonth(), // 6
     ]);
 
-    final quizTopics = results[0];
-    final quizQuestions = results[1];
-    final flashTopics = results[2];
-    final flashTotal = results[3];
+    final quizSummary = (results[0] as Map<String, dynamic>);
+    final flashSummary = (results[1] as Map<String, dynamic>);
+    final quizTopics = results[2] as int;
+    final quizQuestions = results[3] as int;
+    final flashTopics = results[4] as int;
+    final flashTotal = results[5] as int;
+    final dailyUsage = (results[6] as List).cast<int>();
 
-    // Giả lập dữ liệu biểu đồ (mỗi ngày trong tháng: 0–120 phút)
-    final random = Random();
-    final dailyUsage = List.generate(30, (_) => random.nextInt(120));
+    final quizDone = (quizSummary['done'] ?? 0) as int;
+    final avgScore = (quizSummary['accuracy'] ?? 0) as int;
+    final flashDone = (flashSummary['done'] ?? 0) as int;
+    final flashAccuracy = (flashSummary['accuracy'] ?? 0) as int;
 
     _cachedStats = {
-      'studyTime': 45,
-      'quizDone': 8,
-      'avgScore': 82,
+      'studyTime': (quizDone + flashDone) * 2, // ước lượng: 2 phút mỗi phiên
+      'quizDone': quizDone,
+      'avgScore': avgScore,
       'quizTopics': quizTopics,
       'quizQuestions': quizQuestions,
       'flashTopics': flashTopics,
       'flashTotal': flashTotal,
-      'flashLearned': (flashTotal / 2).round(),
+      'flashSessions': flashDone,
+      'flashAccuracy': flashAccuracy,
       'dailyUsage': dailyUsage,
     };
     return _cachedStats!;
@@ -392,7 +410,7 @@ class _UsageChartCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "Tổng thời lượng sử dụng (tháng này)",
+            "Hoạt động theo ngày (tháng này)",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           const SizedBox(height: 8),
@@ -444,7 +462,7 @@ class _UsageChartCard extends StatelessWidget {
                       ),
                     )
                     .toList(),
-                maxY: maxValue == 0 ? 10 : maxValue + 20,
+                maxY: maxValue == 0 ? 1 : maxValue + 1,
               ),
             ),
           ),

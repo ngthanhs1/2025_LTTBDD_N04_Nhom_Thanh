@@ -4,6 +4,7 @@ import '../../models/flashcard.dart';
 import '../../services/firestore_service.dart';
 import 'add_chude.dart';
 import 'flashcard_topic.dart';
+import 'test_flashcard.dart';
 
 class FlashcardHomeScreen extends StatelessWidget {
   const FlashcardHomeScreen({super.key});
@@ -160,6 +161,18 @@ class _TopicTile extends StatelessWidget {
                   const Text('1'),
                 ],
               ),
+            ),
+            const SizedBox(width: 8),
+            OutlinedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TestFlashcardScreen(topic: topic),
+                  ),
+                );
+              },
+              child: const Text('Ôn tập'),
             ),
           ],
         ),

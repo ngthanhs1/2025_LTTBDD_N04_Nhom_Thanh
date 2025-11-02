@@ -22,7 +22,6 @@ class FirestoreService {
   CollectionReference<Map<String, dynamic>> _questionsCol(String topicId) =>
       _topicDoc(topicId).collection('questions');
 
-  // Thêm topic quiz
   Future<String> addTopic(String name) async {
     final uid = _auth.currentUser?.uid;
     final doc = await _topicsCol.add({
@@ -33,23 +32,18 @@ class FirestoreService {
     return doc.id;
   }
 
-  // Stream topics quiz
   Stream<List<Topic>> streamTopics() {
     final uid = _auth.currentUser?.uid;
     Query<Map<String, dynamic>> q = _topicsCol.orderBy(
       'createdAt',
       descending: true,
     );
-    if (uid != null) {
-      // Có thể lọc theo user nếu cần
-      // q = q.where('createdBy', isEqualTo: uid);
-    }
+    if (uid != null) {}
     return q.snapshots().map(
       (snap) => snap.docs.map((d) => Topic.fromDoc(d.id, d.data())).toList(),
     );
   }
 
-  // Stream questions quiz
   Stream<List<Question>> streamQuestions(String topicId) {
     return _questionsCol(topicId)
         .orderBy('text')
@@ -94,7 +88,6 @@ class FirestoreService {
   CollectionReference<Map<String, dynamic>> _flashCards(String topicId) =>
       _flashTopicDoc(topicId).collection('cards');
 
-  // Tạo chủ đề flashcard
   Future<String> addFlashTopic(String name) async {
     final doc = await _flashTopics.add({
       'name': name.trim(),
@@ -103,7 +96,6 @@ class FirestoreService {
     return doc.id;
   }
 
-  // Lắng nghe danh sách chủ đề flashcard
   Stream<List<ChuDe>> streamFlashTopics() {
     return _flashTopics
         .orderBy('createdAt', descending: true)
@@ -111,16 +103,11 @@ class FirestoreService {
         .map((snap) => snap.docs.map((d) => ChuDe.fromDoc(d)).toList());
   }
 
-  // Đếm số thẻ trong 1 chủ đề
   Future<int> countFlashcards(String topicId) async {
     final agg = await _flashCards(topicId).count().get();
     return agg.count ?? 0;
-    // Nếu SDK chưa hỗ trợ count() -> fallback:
-    // final qs = await _flashCards(topicId).get();
-    // return qs.docs.length;
   }
 
-  // Thêm thẻ
   Future<void> addFlashcard({
     required String topicId,
     required String front,
@@ -136,7 +123,6 @@ class FirestoreService {
     });
   }
 
-  // Lắng nghe thẻ theo chủ đề
   Stream<List<Flashcard>> streamCards(String topicId) {
     return _flashCards(topicId)
         .orderBy('createdAt', descending: false)
@@ -144,7 +130,6 @@ class FirestoreService {
         .map((snap) => snap.docs.map((d) => Flashcard.fromDoc(d)).toList());
   }
 
-  // Cập nhật flashcard hiện có
   Future<void> updateFlashcard({
     required String topicId,
     required String cardId,
@@ -193,5 +178,235 @@ class FirestoreService {
       total += qs.count ?? 0;
     }
     return total;
+  }
+
+  // ==================== FLASH PRACTICE SESSIONS ====================
+
+  DocumentReference<Map<String, dynamic>> _userDoc(String uid) =>
+      _db.collection('users').doc(uid);
+
+  CollectionReference<Map<String, dynamic>> _flashPracticeSessions(
+    String uid,
+  ) => _userDoc(uid).collection('flash_practice_sessions');
+  Future<void> addFlashPracticeSession({
+    required String topicId,
+    required String topicName,
+    required int total,
+    required int correct,
+    required int wrong,
+  }) async {
+    final uid = _auth.currentUser?.uid ?? 'guest';
+    await _flashPracticeSessions(uid).add({
+      'topicId': topicId,
+      'topicName': topicName,
+      'total': total,
+      'correct': correct,
+      'wrong': wrong,
+      'accuracy': total == 0 ? 0 : (correct / total),
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<Map<String, dynamic>> getFlashPracticeSummary({
+    int limit = 200,
+  }) async {
+    final uid = _auth.currentUser?.uid ?? 'guest';
+    final qs = await _flashPracticeSessions(
+      uid,
+    ).orderBy('createdAt', descending: true).limit(limit).get();
+
+    int correct = 0;
+    int wrong = 0;
+    final Map<String, Map<String, dynamic>> perTopic = {};
+
+    for (final d in qs.docs) {
+      final data = d.data();
+      final c = (data['correct'] ?? 0) as int;
+      final w = (data['wrong'] ?? 0) as int;
+      correct += c;
+      wrong += w;
+      final tId = (data['topicId'] ?? '') as String;
+      final tName = (data['topicName'] ?? '') as String;
+      final ts = (data['createdAt'] as Timestamp?);
+      final createdAt = ts?.toDate() ?? DateTime.now();
+
+      final entry =
+          perTopic[tId] ??
+          {
+            'name': tName,
+            'id': tId,
+            'correct': 0,
+            'wrong': 0,
+            'done': 0,
+            'lastDate': createdAt,
+          };
+      entry['correct'] = (entry['correct'] as int) + c;
+      entry['wrong'] = (entry['wrong'] as int) + w;
+      entry['done'] = (entry['done'] as int) + 1;
+      if (createdAt.isAfter(entry['lastDate'] as DateTime)) {
+        entry['lastDate'] = createdAt;
+      }
+      perTopic[tId] = entry;
+    }
+
+    final accuracy = (correct + wrong) == 0
+        ? 0
+        : ((correct / (correct + wrong)) * 100).round();
+
+    final topics = perTopic.values.map((e) {
+      final c = e['correct'] as int;
+      final w = e['wrong'] as int;
+      final acc = (c + w) == 0 ? 0 : ((c / (c + w)) * 100).round();
+      final dt = e['lastDate'] as DateTime;
+      final dateStr =
+          '${dt.day.toString().padLeft(2, '0')}/'
+          '${dt.month.toString().padLeft(2, '0')}/'
+          '${dt.year}';
+      return {
+        'name': e['name'],
+        'id': e['id'],
+        'accuracy': acc,
+        'done': e['done'],
+        'date': dateStr,
+      };
+    }).toList();
+
+    topics.sort((a, b) => (b['date'] as String).compareTo(a['date'] as String));
+
+    return {
+      'done': qs.docs.length,
+      'accuracy': accuracy,
+      'correct': correct,
+      'wrong': wrong,
+      'topics': topics,
+    };
+  }
+
+  // ==================== QUIZ SESSIONS ====================
+
+  CollectionReference<Map<String, dynamic>> _quizSessions(String uid) =>
+      _userDoc(uid).collection('quiz_sessions');
+
+  Future<void> addQuizSession({
+    required String topicId,
+    required String topicName,
+    required int total,
+    required int correct,
+    required int wrong,
+  }) async {
+    final uid = _auth.currentUser?.uid ?? 'guest';
+    await _quizSessions(uid).add({
+      'topicId': topicId,
+      'topicName': topicName,
+      'total': total,
+      'correct': correct,
+      'wrong': wrong,
+      'accuracy': total == 0 ? 0 : (correct / total),
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<Map<String, dynamic>> getQuizSummary({int limit = 200}) async {
+    final uid = _auth.currentUser?.uid ?? 'guest';
+    final qs = await _quizSessions(
+      uid,
+    ).orderBy('createdAt', descending: true).limit(limit).get();
+
+    int correct = 0;
+    int wrong = 0;
+    final Map<String, Map<String, dynamic>> perTopic = {};
+
+    for (final d in qs.docs) {
+      final data = d.data();
+      final c = (data['correct'] ?? 0) as int;
+      final w = (data['wrong'] ?? 0) as int;
+      correct += c;
+      wrong += w;
+      final tId = (data['topicId'] ?? '') as String;
+      final tName = (data['topicName'] ?? '') as String;
+      final ts = (data['createdAt'] as Timestamp?);
+      final createdAt = ts?.toDate() ?? DateTime.now();
+
+      final entry =
+          perTopic[tId] ??
+          {
+            'name': tName,
+            'id': tId,
+            'correct': 0,
+            'wrong': 0,
+            'done': 0,
+            'lastDate': createdAt,
+          };
+      entry['correct'] = (entry['correct'] as int) + c;
+      entry['wrong'] = (entry['wrong'] as int) + w;
+      entry['done'] = (entry['done'] as int) + 1;
+      if (createdAt.isAfter(entry['lastDate'] as DateTime)) {
+        entry['lastDate'] = createdAt;
+      }
+      perTopic[tId] = entry;
+    }
+
+    final accuracy = (correct + wrong) == 0
+        ? 0
+        : ((correct / (correct + wrong)) * 100).round();
+
+    final topics = perTopic.values.map((e) {
+      final c = e['correct'] as int;
+      final w = e['wrong'] as int;
+      final acc = (c + w) == 0 ? 0 : ((c / (c + w)) * 100).round();
+      final dt = e['lastDate'] as DateTime;
+      final dateStr =
+          '${dt.day.toString().padLeft(2, '0')}/'
+          '${dt.month.toString().padLeft(2, '0')}/'
+          '${dt.year}';
+      return {
+        'name': e['name'],
+        'accuracy': acc,
+        'done': e['done'],
+        'date': dateStr,
+      };
+    }).toList();
+
+    topics.sort((a, b) => (b['date'] as String).compareTo(a['date'] as String));
+
+    return {
+      'done': qs.docs.length,
+      'accuracy': accuracy,
+      'correct': correct,
+      'wrong': wrong,
+      'topics': topics,
+    };
+  }
+
+  Future<List<int>> getDailyActivityThisMonth() async {
+    final uid = _auth.currentUser?.uid ?? 'guest';
+    final now = DateTime.now();
+    final firstDay = DateTime(now.year, now.month, 1);
+    final nextMonth = DateTime(now.year, now.month + 1, 1);
+    final daysInMonth = nextMonth.difference(firstDay).inDays;
+    final counts = List<int>.filled(daysInMonth, 0);
+
+    Future<void> accumulate(Query<Map<String, dynamic>> q) async {
+      final qs = await q.get();
+      for (final d in qs.docs) {
+        final ts = d.data()['createdAt'] as Timestamp?;
+        final dt = ts?.toDate();
+        if (dt == null) continue;
+        final dayIndex = dt.day - 1;
+        if (dayIndex >= 0 && dayIndex < daysInMonth) {
+          counts[dayIndex] += 1;
+        }
+      }
+    }
+
+    final quizQ = _quizSessions(uid)
+        .where('createdAt', isGreaterThanOrEqualTo: firstDay)
+        .where('createdAt', isLessThan: nextMonth);
+    final flashQ = _flashPracticeSessions(uid)
+        .where('createdAt', isGreaterThanOrEqualTo: firstDay)
+        .where('createdAt', isLessThan: nextMonth);
+
+    await Future.wait([accumulate(quizQ), accumulate(flashQ)]);
+    return counts;
   }
 }

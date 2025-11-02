@@ -29,6 +29,16 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
     if (currentIndex < widget.questions.length - 1) {
       setState(() => currentIndex++);
     } else {
+      final total = widget.questions.length;
+      final wrong = (total - correctAnswers).clamp(0, total);
+      FirestoreService.instance.addQuizSession(
+        topicId: widget.topic.id,
+        topicName: widget.topic.name,
+        total: total,
+        correct: correctAnswers,
+        wrong: wrong,
+      );
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

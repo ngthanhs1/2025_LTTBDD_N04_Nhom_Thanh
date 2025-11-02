@@ -53,7 +53,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
     setState(() => _saving = true);
     try {
-      // ✅ FirestoreService trả về id chủ đề (đảm bảo Future hoạt động)
       final topicId = await FirestoreService.instance.addTopic(_topicCtrl.text);
 
       for (final q in _questions) {

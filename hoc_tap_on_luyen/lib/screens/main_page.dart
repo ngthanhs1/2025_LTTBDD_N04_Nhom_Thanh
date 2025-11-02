@@ -4,6 +4,7 @@ import 'Quiz/quiz_home.dart';
 import '../models/flashcard.dart';
 import 'Flashcard/flashcard_home.dart';
 import 'Taikhoan/profile.dart';
+import 'trangchu/thongke.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -18,6 +19,7 @@ class _MainPageState extends State<MainPage> {
     HomeScreen(),
     QuizHomeScreen(),
     FlashcardHomeScreen(),
+    thongkeScreen(),
     ProfileScreen(),
   ];
 
@@ -52,6 +54,10 @@ class _MainPageState extends State<MainPage> {
               icon: Icon(Icons.menu_book_outlined),
               activeIcon: Icon(Icons.menu_book),
               label: 'Flashcard',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bar_chart_rounded),
+              label: 'Thống kê',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
