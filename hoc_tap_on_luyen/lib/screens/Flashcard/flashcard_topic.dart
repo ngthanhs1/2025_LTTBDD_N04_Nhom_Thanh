@@ -292,17 +292,43 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
   }
 
   Widget _emptyView(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.layers_outlined, color: Colors.grey, size: 48),
-        const SizedBox(height: 10),
-        Text(
-          AppLocalizations.of(context).flashEmptyCards,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey.shade700),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(Icons.layers_outlined, color: Colors.grey, size: 56),
+            const SizedBox(height: 12),
+            Text(
+              AppLocalizations.of(context).flashEmptyCards,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 196, 183, 241),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AddTuScreen(topic: widget.topic),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add_rounded),
+              label: Text(AppLocalizations.of(context).flashPractice),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

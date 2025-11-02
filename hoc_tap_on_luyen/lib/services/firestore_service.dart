@@ -34,14 +34,19 @@ class FirestoreService {
 
   Stream<List<Topic>> streamTopics() {
     final uid = _auth.currentUser?.uid;
-    Query<Map<String, dynamic>> q = _topicsCol.orderBy(
-      'createdAt',
-      descending: true,
-    );
-    if (uid != null) {}
-    return q.snapshots().map(
-      (snap) => snap.docs.map((d) => Topic.fromDoc(d.id, d.data())).toList(),
-    );
+    return _topicsCol
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snap) => snap.docs
+              .where((d) {
+                final data = d.data();
+                final createdBy = data['createdBy'];
+                return createdBy == uid || createdBy == null;
+              })
+              .map((d) => Topic.fromDoc(d.id, d.data()))
+              .toList(),
+        );
   }
 
   Stream<List<Question>> streamQuestions(String topicId) {
@@ -106,18 +111,30 @@ class FirestoreService {
       _flashTopicDoc(topicId).collection('cards');
 
   Future<String> addFlashTopic(String name) async {
+    final uid = _auth.currentUser?.uid;
     final doc = await _flashTopics.add({
       'name': name.trim(),
+      'createdBy': uid,
       'createdAt': FieldValue.serverTimestamp(),
     });
     return doc.id;
   }
 
   Stream<List<ChuDe>> streamFlashTopics() {
+    final uid = _auth.currentUser?.uid;
     return _flashTopics
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map((d) => ChuDe.fromDoc(d)).toList());
+        .map(
+          (snap) => snap.docs
+              .where((d) {
+                final data = d.data();
+                final createdBy = data['createdBy'];
+                return createdBy == uid || createdBy == null;
+              })
+              .map((d) => ChuDe.fromDoc(d))
+              .toList(),
+        );
   }
 
   Future<int> countFlashcards(String topicId) async {
@@ -188,26 +205,52 @@ class FirestoreService {
     await _flashTopicDoc(topicId).delete();
   }
 
-  Future<int> countQuizTopics() async =>
-      (await _topicsCol.count().get()).count ?? 0;
+  Future<int> countQuizTopics() async {
+    final uid = _auth.currentUser?.uid;
+    final snap = await _topicsCol.get();
+    return snap.docs.where((d) {
+      final data = d.data();
+      final createdBy = data['createdBy'];
+      return createdBy == uid || createdBy == null;
+    }).length;
+  }
 
   Future<int> countAllQuestions() async {
-    final topics = await _topicsCol.get();
+    final uid = _auth.currentUser?.uid;
+    final topicsSnap = await _topicsCol.get();
+    final filtered = topicsSnap.docs.where((d) {
+      final data = d.data();
+      final createdBy = data['createdBy'];
+      return createdBy == uid || createdBy == null;
+    });
     int total = 0;
-    for (var t in topics.docs) {
+    for (var t in filtered) {
       final qs = await _questionsCol(t.id).count().get();
       total += qs.count ?? 0;
     }
     return total;
   }
 
-  Future<int> countFlashTopics() async =>
-      (await _flashTopics.count().get()).count ?? 0;
+  Future<int> countFlashTopics() async {
+    final uid = _auth.currentUser?.uid;
+    final snap = await _flashTopics.get();
+    return snap.docs.where((d) {
+      final data = d.data();
+      final createdBy = data['createdBy'];
+      return createdBy == uid || createdBy == null;
+    }).length;
+  }
 
   Future<int> countAllFlashcards() async {
-    final topics = await _flashTopics.get();
+    final uid = _auth.currentUser?.uid;
+    final topicsSnap = await _flashTopics.get();
+    final filtered = topicsSnap.docs.where((d) {
+      final data = d.data();
+      final createdBy = data['createdBy'];
+      return createdBy == uid || createdBy == null;
+    });
     int total = 0;
-    for (var t in topics.docs) {
+    for (var t in filtered) {
       final qs = await _flashCards(t.id).count().get();
       total += qs.count ?? 0;
     }

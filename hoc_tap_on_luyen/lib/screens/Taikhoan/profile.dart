@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'gioithieu.dart';
 import 'thongtin_tk.dart';
 import 'quen_mk.dart';
 import 'chinh_sach.dart';
 import 'ngonngu.dart';
 import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
+import '../../services/auth_service.dart';
+import '../login.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -37,21 +40,39 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
             padding: const EdgeInsets.all(16),
-            child: Column(
-              children: const [
-                CircleAvatar(
-                  radius: 36,
-                  backgroundColor: Color(0xFFE0E7FF),
-                  child: Icon(Icons.person, size: 40, color: Colors.blue),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'tt',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                SizedBox(height: 4),
-                Text('tt@gmail.com', style: TextStyle(color: Colors.grey)),
-              ],
+            child: StreamBuilder<User?>(
+              stream: FirebaseAuth.instance.userChanges(),
+              builder: (context, snapshot) {
+                final user = snapshot.data ?? FirebaseAuth.instance.currentUser;
+                final email = user?.email ?? '';
+                final displayName =
+                    (user?.displayName != null &&
+                        user!.displayName!.trim().isNotEmpty)
+                    ? user.displayName!.trim()
+                    : (email.isNotEmpty ? email.split('@').first : 'User');
+                return Column(
+                  children: [
+                    const CircleAvatar(
+                      radius: 36,
+                      backgroundColor: Color(0xFFE0E7FF),
+                      child: Icon(Icons.person, size: 40, color: Colors.blue),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      displayName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      email.isNotEmpty ? email : '—',
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
           const SizedBox(height: 20),
@@ -101,11 +122,15 @@ class ProfileScreen extends StatelessWidget {
             icon: Icons.logout_rounded,
             label: AppLocalizations.of(context).menuLogout,
             color: Colors.red,
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.of(context).menuLogout),
-                ),
+            onTap: () async {
+              try {
+                await AuthService.instance.signOut();
+              } catch (_) {}
+              if (!context.mounted) return;
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
               );
             },
           ),

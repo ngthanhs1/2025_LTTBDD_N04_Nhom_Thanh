@@ -15,22 +15,12 @@ class FlashcardHomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF6C4CE3),
+        backgroundColor: const Color.fromARGB(255, 231, 229, 236),
         title: Text(
           AppLocalizations.of(context).flashTitleFolders,
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
         actions: [
-          IconButton(
-            tooltip: AppLocalizations.of(context).flashBackup,
-            icon: const Icon(Icons.download_rounded, color: Colors.white),
-            onPressed: () {},
-          ),
-          IconButton(
-            tooltip: AppLocalizations.of(context).flashChecklist,
-            icon: const Icon(Icons.checklist_rounded, color: Colors.white),
-            onPressed: () {},
-          ),
           IconButton(
             tooltip: AppLocalizations.of(context).flashSearch,
             icon: const Icon(Icons.search_rounded, color: Colors.white),
@@ -39,7 +29,7 @@ class FlashcardHomeScreen extends StatelessWidget {
           const SizedBox(width: 4),
           TextButton.icon(
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF6C4CE3),
+              foregroundColor: const Color.fromARGB(255, 32, 31, 32),
               backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -51,8 +41,6 @@ class FlashcardHomeScreen extends StatelessWidget {
                 barrierDismissible: false,
                 builder: (_) => const AddChuDeDialog(),
               );
-              // Không cần setState; StreamBuilder tự update.
-              // ok chỉ để bạn biết có lưu xong hay không nếu muốn hiển thị SnackBar.
               if (ok == true && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -123,7 +111,10 @@ class _TopicTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         child: Row(
           children: [
-            const Icon(Icons.folder_open_rounded, color: Color(0xFF6C4CE3)),
+            const Icon(
+              Icons.folder_open_rounded,
+              color: Color.fromARGB(255, 230, 228, 236),
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Column(

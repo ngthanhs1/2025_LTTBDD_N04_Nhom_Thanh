@@ -4,14 +4,10 @@ import '../../models/flashcard.dart';
 import '../../services/firestore_service.dart';
 
 class AddTuScreen extends StatefulWidget {
-  const AddTuScreen({
-    super.key,
-    required this.topic,
-    this.card, // 👈 thêm tham số card để chỉnh sửa
-  });
+  const AddTuScreen({super.key, required this.topic, this.card});
 
   final ChuDe topic;
-  final Flashcard? card; // 👈 card có thể null
+  final Flashcard? card;
 
   @override
   State<AddTuScreen> createState() => _AddTuScreenState();
@@ -22,13 +18,11 @@ class _AddTuScreenState extends State<AddTuScreen> {
   final _backCtr = TextEditingController();
   final _noteCtr = TextEditingController();
   bool _saving = false;
-  bool get _isEditing =>
-      widget.card != null; // 👈 xác định đang sửa hay thêm mới
+  bool get _isEditing => widget.card != null;
 
   @override
   void initState() {
     super.initState();
-    // nếu có card -> điền sẵn dữ liệu
     if (widget.card != null) {
       _frontCtr.text = widget.card!.front;
       _backCtr.text = widget.card!.back;
@@ -53,7 +47,6 @@ class _AddTuScreenState extends State<AddTuScreen> {
     setState(() => _saving = true);
 
     if (_isEditing) {
-      // ✅ Cập nhật flashcard hiện có
       await FirestoreService.instance.updateFlashcard(
         topicId: widget.topic.id,
         cardId: widget.card!.id,
@@ -62,7 +55,6 @@ class _AddTuScreenState extends State<AddTuScreen> {
         note: _noteCtr.text.trim(),
       );
     } else {
-      // ✅ Tạo mới
       await FirestoreService.instance.addFlashcard(
         topicId: widget.topic.id,
         front: f,

@@ -1,37 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class ThongTinTkScreen extends StatelessWidget {
   const ThongTinTkScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    final email = user?.email ?? '-';
+    final name = user?.displayName ?? '-';
+    final created = user?.metadata.creationTime;
+    final createdStr = created == null
+        ? '-'
+        : DateFormat('dd/MM/yyyy').format(created);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Thông tin tài khoản')),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: const [
+        children: [
           Card(
             child: Padding(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _InfoTile(
+                    icon: Icons.person_outline,
+                    label: 'Tên hiển thị',
+                    value: name,
+                  ),
+                  const Divider(height: 1),
+                  _InfoTile(
                     icon: Icons.alternate_email,
                     label: 'Email',
-                    value: 'tt@gmail.com',
+                    value: email,
                   ),
-                  Divider(height: 1),
-                  _InfoTile(
-                    icon: Icons.person_outline,
-                    label: 'Tên đăng nhập',
-                    value: 'tt',
-                  ),
-                  Divider(height: 1),
+                  const Divider(height: 1),
                   _InfoTile(
                     icon: Icons.event_available_outlined,
                     label: 'Ngày tạo',
-                    value: '01/10/2025',
+                    value: createdStr,
                   ),
                 ],
               ),

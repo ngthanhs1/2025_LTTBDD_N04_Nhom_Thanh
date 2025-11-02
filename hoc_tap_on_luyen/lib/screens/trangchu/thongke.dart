@@ -26,7 +26,7 @@ class _ThongKeScreenState extends State<ThongKeScreen>
       appBar: AppBar(
         title: Text(AppLocalizations.of(context).statsTitle),
         centerTitle: true,
-        backgroundColor: Colors.indigo,
+        backgroundColor: const Color.fromARGB(255, 226, 229, 240),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
@@ -143,7 +143,7 @@ class _ThongKeScreenState extends State<ThongKeScreen>
                 centerSpaceRadius: 60,
                 sections: [
                   PieChartSectionData(
-                    color: Colors.green,
+                    color: Color.fromARGB(255, 152, 240, 152),
                     value: data['correct'].toDouble(),
                     title: '$correctPercent%',
                     titleStyle: const TextStyle(
@@ -152,7 +152,7 @@ class _ThongKeScreenState extends State<ThongKeScreen>
                     ),
                   ),
                   PieChartSectionData(
-                    color: Colors.red,
+                    color: Color.fromARGB(255, 236, 176, 173),
                     value: data['wrong'].toDouble(),
                     title: '',
                   ),
@@ -164,11 +164,19 @@ class _ThongKeScreenState extends State<ThongKeScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.circle, color: Colors.green, size: 12),
+              const Icon(
+                Icons.circle,
+                color: Color.fromARGB(255, 152, 240, 152),
+                size: 12,
+              ),
               const SizedBox(width: 4),
               Text(AppLocalizations.of(context).correctLabel),
               const SizedBox(width: 12),
-              const Icon(Icons.circle, color: Colors.red, size: 12),
+              const Icon(
+                Icons.circle,
+                color: Color.fromARGB(255, 236, 176, 173),
+                size: 12,
+              ),
               const SizedBox(width: 4),
               Text(AppLocalizations.of(context).wrongLabel),
             ],

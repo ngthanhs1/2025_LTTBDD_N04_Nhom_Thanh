@@ -59,75 +59,91 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2E0854),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "Hi user\nWelcome back",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                TextFormField(
-                  controller: _email,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: _inputDecoration("Enter your email id"),
-                  validator: (v) => (v == null || !v.contains('@'))
-                      ? 'Email không hợp lệ'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-
-                TextFormField(
-                  controller: _password,
-                  obscureText: _obscure,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: _inputDecoration("Your Password", true),
-                  validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Nhập mật khẩu' : null,
-                ),
-                const SizedBox(height: 24),
-
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purpleAccent,
-                    minimumSize: const Size(double.infinity, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset('images/nen.jpg', fit: BoxFit.cover),
+          Container(color: Colors.black.withOpacity(0.45)),
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Hãy đăng nhập để vào App",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  onPressed: _loading ? null : _login,
-                  child: _loading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text("Log In", style: TextStyle(fontSize: 16)),
-                ),
-                const SizedBox(height: 16),
+                    const SizedBox(height: 32),
 
-                TextButton(
-                  onPressed: () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SignupScreen()),
-                  ),
-                  child: const Text(
-                    "Don’t have an account ? Register",
-                    style: TextStyle(color: Colors.pinkAccent),
-                  ),
+                    TextFormField(
+                      controller: _email,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: _inputDecoration("Enter your email id"),
+                      validator: (v) => (v == null || !v.contains('@'))
+                          ? 'Email không hợp lệ'
+                          : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    TextFormField(
+                      controller: _password,
+                      obscureText: _obscure,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: _inputDecoration("Your Password", true),
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Nhập mật khẩu' : null,
+                    ),
+                    const SizedBox(height: 24),
+
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(
+                          255,
+                          240,
+                          232,
+                          241,
+                        ),
+                        minimumSize: const Size(double.infinity, 48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
+                      onPressed: _loading ? null : _login,
+                      child: _loading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              "Log In",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    TextButton(
+                      onPressed: () => Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SignupScreen()),
+                      ),
+                      child: const Text(
+                        "Bạn chưa có tài khoản ? Đăng ký ngay",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 250, 250, 250),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

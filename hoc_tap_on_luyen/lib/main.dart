@@ -35,9 +35,17 @@ class HocTapOnLuyenApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 172, 181, 235),
+          seedColor: const Color(
+            0xFF3B82F6,
+          ), // consistent blue (no pink/purple)
+          brightness: Brightness.light,
         ),
         scaffoldBackgroundColor: Colors.grey[50],
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Color(0xFF3B82F6),
+          selectionColor: Color(0x553B82F6), // 33% opacity
+          selectionHandleColor: Color(0xFF3B82F6),
+        ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.grey[100],
@@ -46,12 +54,9 @@ class HocTapOnLuyenApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: Colors.grey.shade300),
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(
-              color: Color.fromARGB(255, 224, 119, 224),
-              width: 1.6,
-            ),
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide(color: Color(0xFF3B82F6), width: 1.6),
           ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
