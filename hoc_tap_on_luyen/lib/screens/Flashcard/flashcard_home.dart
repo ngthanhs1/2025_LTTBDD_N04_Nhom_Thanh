@@ -136,18 +136,21 @@ class _TopicTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            FutureBuilder<int>(
-              future: FirestoreService.instance.countFlashcards(topic.id),
-              builder: (_, s) => Row(
-                children: [
-                  const Icon(
-                    Icons.layers_rounded,
-                    color: Color.fromARGB(255, 111, 119, 118),
-                  ),
-                  const SizedBox(width: 4),
-                  Text('${s.data ?? 0}'),
-                ],
-              ),
+            StreamBuilder<List<Flashcard>>(
+              stream: FirestoreService.instance.streamCards(topic.id),
+              builder: (_, s) {
+                final count = s.data?.length ?? 0;
+                return Row(
+                  children: [
+                    const Icon(
+                      Icons.layers_rounded,
+                      color: Color.fromARGB(255, 111, 119, 118),
+                    ),
+                    const SizedBox(width: 4),
+                    Text('$count'),
+                  ],
+                );
+              },
             ),
             const SizedBox(width: 8),
             Row(
