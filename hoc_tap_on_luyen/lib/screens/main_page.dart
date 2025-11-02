@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home.dart';
+import 'trangchu/home.dart';
 import 'Quiz/quiz_home.dart';
 import '../models/flashcard.dart';
 import 'Flashcard/flashcard_home.dart';
@@ -24,7 +24,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_index],
+      body: IndexedStack(index: _index, children: _screens),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],

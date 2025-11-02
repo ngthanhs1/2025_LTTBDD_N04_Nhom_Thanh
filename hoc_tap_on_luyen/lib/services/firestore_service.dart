@@ -168,4 +168,30 @@ class FirestoreService {
       debugPrint('Lỗi cập nhật flashcard: $e');
     }
   }
+
+  Future<int> countQuizTopics() async =>
+      (await _topicsCol.count().get()).count ?? 0;
+
+  Future<int> countAllQuestions() async {
+    final topics = await _topicsCol.get();
+    int total = 0;
+    for (var t in topics.docs) {
+      final qs = await _questionsCol(t.id).count().get();
+      total += qs.count ?? 0;
+    }
+    return total;
+  }
+
+  Future<int> countFlashTopics() async =>
+      (await _flashTopics.count().get()).count ?? 0;
+
+  Future<int> countAllFlashcards() async {
+    final topics = await _flashTopics.get();
+    int total = 0;
+    for (var t in topics.docs) {
+      final qs = await _flashCards(t.id).count().get();
+      total += qs.count ?? 0;
+    }
+    return total;
+  }
 }

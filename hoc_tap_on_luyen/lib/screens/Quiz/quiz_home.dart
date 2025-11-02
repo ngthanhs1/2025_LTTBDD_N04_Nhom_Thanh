@@ -39,7 +39,11 @@ class QuizHomeScreen extends StatelessWidget {
         stream: FirestoreService.instance.streamTopics(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text("Lỗi tải dữ liệu"));
+            return const Center(child: Text("Lỗi tải dữ liệu 😢"));
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
           }
 
           final topics = snapshot.data ?? [];
@@ -47,9 +51,9 @@ class QuizHomeScreen extends StatelessWidget {
           if (topics.isEmpty) {
             return const Center(
               child: Text(
-                "Chưa có chủ đề nào.\nNhấn + để bắt đầu tạo!",
+                "Chưa có chủ đề nào.\nNhấn nút + để bắt đầu tạo!",
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: Colors.grey, fontSize: 16),
               ),
             );
           }
@@ -60,30 +64,55 @@ class QuizHomeScreen extends StatelessWidget {
             itemBuilder: (context, i) {
               final topic = topics[i];
               return Card(
+                color: Colors.indigo.shade50,
                 margin: const EdgeInsets.symmetric(vertical: 6),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
+                elevation: 2,
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: Colors.indigo.withOpacity(0.1),
-                    child: const Icon(Icons.topic, color: Colors.indigo),
+                    backgroundColor: Colors.indigo,
+                    child: Text(
+                      topic.name.isNotEmpty ? topic.name[0].toUpperCase() : '?',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ),
                   title: Text(
                     topic.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
-                  subtitle: FutureBuilder<int>(
-                    future: FirestoreService.instance.countQuestions(topic.id),
-                    builder: (context, snap) {
-                      return Text("${snap.data ?? 0} câu hỏi");
-                    },
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Ngày tạo: ${topic.createdAt.toLocal().toString().split(' ').first}",
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 13,
+                        ),
+                      ),
+                      FutureBuilder<int>(
+                        future: FirestoreService.instance.countQuestions(
+                          topic.id,
+                        ),
+                        builder: (context, snap) {
+                          return Text(
+                            "${snap.data ?? 0} câu hỏi",
+                            style: TextStyle(color: Colors.grey.shade800),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   trailing: IconButton(
                     icon: const Icon(
-                      Icons.play_arrow_rounded,
+                      Icons.play_circle_fill,
                       color: Colors.indigo,
-                      size: 30,
+                      size: 32,
                     ),
                     onPressed: () async {
                       final questions = await FirestoreService.instance

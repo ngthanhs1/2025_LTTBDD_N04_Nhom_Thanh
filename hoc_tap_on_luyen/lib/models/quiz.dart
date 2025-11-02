@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Topic {
   final String id;
   final String name;
@@ -17,14 +19,25 @@ class Topic {
     'createdAt': createdAt.millisecondsSinceEpoch,
   };
 
-  static Topic fromDoc(String id, Map<String, dynamic> data) => Topic(
-    id: id,
-    name: (data['name'] ?? '') as String,
-    createdBy: data['createdBy'] as String?,
-    createdAt: DateTime.fromMillisecondsSinceEpoch(
-      (data['createdAt'] ?? DateTime.now().millisecondsSinceEpoch) as int,
-    ),
-  );
+  static Topic fromDoc(String id, Map<String, dynamic> data) {
+    final createdAtField = data['createdAt'];
+    DateTime createdAt;
+
+    if (createdAtField is Timestamp) {
+      createdAt = createdAtField.toDate();
+    } else if (createdAtField is int) {
+      createdAt = DateTime.fromMillisecondsSinceEpoch(createdAtField);
+    } else {
+      createdAt = DateTime.now();
+    }
+
+    return Topic(
+      id: id,
+      name: (data['name'] ?? '') as String,
+      createdBy: data['createdBy'] as String?,
+      createdAt: createdAt,
+    );
+  }
 }
 
 class Question {
