@@ -77,6 +77,23 @@ class FirestoreService {
     return agg.count ?? 0;
   }
 
+  // Đổi tên và xóa chủ đề Quiz
+  Future<void> updateQuizTopicName({
+    required String topicId,
+    required String newName,
+  }) async {
+    await _topicDoc(topicId).update({'name': newName.trim()});
+  }
+
+  Future<void> deleteQuizTopic(String topicId) async {
+    // Xóa toàn bộ câu hỏi trong chủ đề rồi xóa chủ đề
+    final qs = await _questionsCol(topicId).get();
+    for (final d in qs.docs) {
+      await d.reference.delete();
+    }
+    await _topicDoc(topicId).delete();
+  }
+
   // ==================== FLASHCARD ====================
 
   CollectionReference<Map<String, dynamic>> get _flashTopics =>
@@ -152,6 +169,23 @@ class FirestoreService {
     } catch (e) {
       debugPrint('Lỗi cập nhật flashcard: $e');
     }
+  }
+
+  // Đổi tên và xóa thư mục Flashcard
+  Future<void> updateFlashTopicName({
+    required String topicId,
+    required String newName,
+  }) async {
+    await _flashTopicDoc(topicId).update({'name': newName.trim()});
+  }
+
+  Future<void> deleteFlashTopic(String topicId) async {
+    // Xóa toàn bộ thẻ trong chủ đề rồi xóa chủ đề
+    final cards = await _flashCards(topicId).get();
+    for (final d in cards.docs) {
+      await d.reference.delete();
+    }
+    await _flashTopicDoc(topicId).delete();
   }
 
   Future<int> countQuizTopics() async =>
@@ -282,6 +316,80 @@ class FirestoreService {
     };
   }
 
+  Stream<Map<String, dynamic>> streamFlashPracticeSummary({int limit = 200}) {
+    final uid = _auth.currentUser?.uid ?? 'guest';
+    return _flashPracticeSessions(
+      uid,
+    ).orderBy('createdAt', descending: true).limit(limit).snapshots().map((qs) {
+      int correct = 0;
+      int wrong = 0;
+      final Map<String, Map<String, dynamic>> perTopic = {};
+
+      for (final d in qs.docs) {
+        final data = d.data();
+        final c = (data['correct'] ?? 0) as int;
+        final w = (data['wrong'] ?? 0) as int;
+        correct += c;
+        wrong += w;
+        final tId = (data['topicId'] ?? '') as String;
+        final tName = (data['topicName'] ?? '') as String;
+        final ts = (data['createdAt'] as Timestamp?);
+        final createdAt = ts?.toDate() ?? DateTime.now();
+
+        final entry =
+            perTopic[tId] ??
+            {
+              'name': tName,
+              'id': tId,
+              'correct': 0,
+              'wrong': 0,
+              'done': 0,
+              'lastDate': createdAt,
+            };
+        entry['correct'] = (entry['correct'] as int) + c;
+        entry['wrong'] = (entry['wrong'] as int) + w;
+        entry['done'] = (entry['done'] as int) + 1;
+        if (createdAt.isAfter(entry['lastDate'] as DateTime)) {
+          entry['lastDate'] = createdAt;
+        }
+        perTopic[tId] = entry;
+      }
+
+      final accuracy = (correct + wrong) == 0
+          ? 0
+          : ((correct / (correct + wrong)) * 100).round();
+
+      final topics =
+          perTopic.values.map((e) {
+            final c = e['correct'] as int;
+            final w = e['wrong'] as int;
+            final acc = (c + w) == 0 ? 0 : ((c / (c + w)) * 100).round();
+            final dt = e['lastDate'] as DateTime;
+            final dateStr =
+                '${dt.day.toString().padLeft(2, '0')}/'
+                '${dt.month.toString().padLeft(2, '0')}/'
+                '${dt.year}';
+            return {
+              'name': e['name'],
+              'id': e['id'],
+              'accuracy': acc,
+              'done': e['done'],
+              'date': dateStr,
+            };
+          }).toList()..sort(
+            (a, b) => (b['date'] as String).compareTo(a['date'] as String),
+          );
+
+      return {
+        'done': qs.docs.length,
+        'accuracy': accuracy,
+        'correct': correct,
+        'wrong': wrong,
+        'topics': topics,
+      };
+    });
+  }
+
   // ==================== QUIZ SESSIONS ====================
 
   CollectionReference<Map<String, dynamic>> _quizSessions(String uid) =>
@@ -376,6 +484,79 @@ class FirestoreService {
       'wrong': wrong,
       'topics': topics,
     };
+  }
+
+  Stream<Map<String, dynamic>> streamQuizSummary({int limit = 200}) {
+    final uid = _auth.currentUser?.uid ?? 'guest';
+    return _quizSessions(
+      uid,
+    ).orderBy('createdAt', descending: true).limit(limit).snapshots().map((qs) {
+      int correct = 0;
+      int wrong = 0;
+      final Map<String, Map<String, dynamic>> perTopic = {};
+
+      for (final d in qs.docs) {
+        final data = d.data();
+        final c = (data['correct'] ?? 0) as int;
+        final w = (data['wrong'] ?? 0) as int;
+        correct += c;
+        wrong += w;
+        final tId = (data['topicId'] ?? '') as String;
+        final tName = (data['topicName'] ?? '') as String;
+        final ts = (data['createdAt'] as Timestamp?);
+        final createdAt = ts?.toDate() ?? DateTime.now();
+
+        final entry =
+            perTopic[tId] ??
+            {
+              'name': tName,
+              'id': tId,
+              'correct': 0,
+              'wrong': 0,
+              'done': 0,
+              'lastDate': createdAt,
+            };
+        entry['correct'] = (entry['correct'] as int) + c;
+        entry['wrong'] = (entry['wrong'] as int) + w;
+        entry['done'] = (entry['done'] as int) + 1;
+        if (createdAt.isAfter(entry['lastDate'] as DateTime)) {
+          entry['lastDate'] = createdAt;
+        }
+        perTopic[tId] = entry;
+      }
+
+      final accuracy = (correct + wrong) == 0
+          ? 0
+          : ((correct / (correct + wrong)) * 100).round();
+
+      final topics =
+          perTopic.values.map((e) {
+            final c = e['correct'] as int;
+            final w = e['wrong'] as int;
+            final acc = (c + w) == 0 ? 0 : ((c / (c + w)) * 100).round();
+            final dt = e['lastDate'] as DateTime;
+            final dateStr =
+                '${dt.day.toString().padLeft(2, '0')}/'
+                '${dt.month.toString().padLeft(2, '0')}/'
+                '${dt.year}';
+            return {
+              'name': e['name'],
+              'accuracy': acc,
+              'done': e['done'],
+              'date': dateStr,
+            };
+          }).toList()..sort(
+            (a, b) => (b['date'] as String).compareTo(a['date'] as String),
+          );
+
+      return {
+        'done': qs.docs.length,
+        'accuracy': accuracy,
+        'correct': correct,
+        'wrong': wrong,
+        'topics': topics,
+      };
+    });
   }
 
   Future<List<int>> getDailyActivityThisMonth() async {

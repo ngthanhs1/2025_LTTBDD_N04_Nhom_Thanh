@@ -71,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     _FeatureCard(
                       icon: Icons.quiz_rounded,
-                      title: 'Quiz',
+                      title: 'Câu đố',
                       color: const Color(0xFFEFF3FF),
                       onTap: () => Navigator.push(
                         context,
@@ -82,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     _FeatureCard(
                       icon: Icons.menu_book_rounded,
-                      title: 'Flashcard',
+                      title: 'Thẻ ghi nhớ',
                       color: const Color(0xFFF3F7FF),
                       onTap: () => Navigator.push(
                         context,
@@ -96,14 +96,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 24),
 
-                // --- THỐNG KÊ NHANH ---
                 const Text(
-                  'Thống kê nhanh',
+                  'Thống kê hôm nay',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
 
-                // --- 3 BOX NHANH ---
                 GridView.count(
                   crossAxisCount: 3,
                   shrinkWrap: true,
@@ -145,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Thống kê Quiz',
+                          'Thống kê Câu đố',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
@@ -179,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             Expanded(
                               child: _KeyVal(
-                                label: 'Độ chính xác TB',
+                                label: 'Độ chính xác',
                                 value: '${stats['avgScore']}%',
                               ),
                             ),
@@ -203,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Thống kê Flashcard',
+                          'Thống kê thẻ ghi nhớ',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
@@ -237,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             Expanded(
                               child: _KeyVal(
-                                label: 'Độ chính xác TB',
+                                label: 'Độ chính xác',
                                 value: '${stats['flashAccuracy']}%',
                               ),
                             ),

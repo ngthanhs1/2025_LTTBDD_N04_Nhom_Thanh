@@ -19,7 +19,7 @@ class QuizResultScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Kết quả - $topicName'),
-        backgroundColor: Colors.indigo,
+        backgroundColor: const Color.fromARGB(255, 117, 115, 126),
       ),
       body: Center(
         child: Padding(
@@ -49,7 +49,7 @@ class QuizResultScreen extends StatelessWidget {
                 icon: const Icon(Icons.home),
                 label: const Text("Về trang chủ"),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.indigo,
+                  backgroundColor: const Color(0xFF6C4CE3),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 30,
                     vertical: 12,

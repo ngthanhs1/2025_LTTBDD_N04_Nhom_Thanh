@@ -2,56 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../services/firestore_service.dart';
 
-class thongkeScreen extends StatefulWidget {
-  const thongkeScreen({super.key});
+class ThongKeScreen extends StatefulWidget {
+  const ThongKeScreen({super.key});
 
   @override
-  State<thongkeScreen> createState() => _thongkeScreenState();
+  State<ThongKeScreen> createState() => _ThongKeScreenState();
 }
 
-class _thongkeScreenState extends State<thongkeScreen>
+class _ThongKeScreenState extends State<ThongKeScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _isLoading = true;
-  late Map<String, dynamic> quizStats;
-  late Map<String, dynamic> flashStats;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _loadStats();
-  }
-
-  Future<void> _loadStats() async {
-    // 🔹 Quiz: lấy thống kê thật từ Firestore
-    try {
-      quizStats = await FirestoreService.instance.getQuizSummary();
-    } catch (_) {
-      quizStats = {
-        'done': 0,
-        'accuracy': 0,
-        'correct': 0,
-        'wrong': 0,
-        'topics': const <Map<String, dynamic>>[],
-      };
-    }
-
-    // 🔹 Flashcard: lấy thống kê thật từ Firestore
-    try {
-      flashStats = await FirestoreService.instance.getFlashPracticeSummary();
-    } catch (_) {
-      flashStats = {
-        'done': 0,
-        'accuracy': 0,
-        'correct': 0,
-        'wrong': 0,
-        'topics': const <Map<String, dynamic>>[],
-      };
-    }
-
-    await Future.delayed(const Duration(milliseconds: 300));
-    setState(() => _isLoading = false);
   }
 
   @override
@@ -70,19 +35,50 @@ class _thongkeScreenState extends State<thongkeScreen>
           ],
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.indigo))
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildStatisticsView(quizStats, Colors.indigo),
-                _buildStatisticsView(flashStats, Colors.teal),
-              ],
-            ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildStatisticsStream(isQuiz: true, mainColor: Colors.indigo),
+          _buildStatisticsStream(isQuiz: false, mainColor: Colors.teal),
+        ],
+      ),
     );
   }
 
-  Widget _buildStatisticsView(Map<String, dynamic> data, Color mainColor) {
+  Widget _buildStatisticsStream({
+    required bool isQuiz,
+    required Color mainColor,
+  }) {
+    final stream = isQuiz
+        ? FirestoreService.instance.streamQuizSummary()
+        : FirestoreService.instance.streamFlashPracticeSummary();
+    return StreamBuilder<Map<String, dynamic>>(
+      stream: stream,
+      builder: (context, snap) {
+        if (snap.hasError) {
+          return Center(
+            child: Text(
+              'Lỗi tải thống kê: ${snap.error}',
+              textAlign: TextAlign.center,
+            ),
+          );
+        }
+        if (!snap.hasData) {
+          return const Center(
+            child: CircularProgressIndicator(color: Colors.indigo),
+          );
+        }
+        final data = snap.data!;
+        return _buildStatisticsView(data, mainColor, isQuiz: isQuiz);
+      },
+    );
+  }
+
+  Widget _buildStatisticsView(
+    Map<String, dynamic> data,
+    Color mainColor, {
+    required bool isQuiz,
+  }) {
     final total = data['correct'] + data['wrong'];
     final correctPercent = total == 0
         ? 0
@@ -140,7 +136,7 @@ class _thongkeScreenState extends State<thongkeScreen>
                   PieChartSectionData(
                     color: Colors.green,
                     value: data['correct'].toDouble(),
-                    title: '${correctPercent}%',
+                    title: '$correctPercent%',
                     titleStyle: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -175,55 +171,63 @@ class _thongkeScreenState extends State<thongkeScreen>
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
-              columns: const [
-                DataColumn(label: Text('Chủ đề')),
-                DataColumn(label: Text('Tỉ lệ đúng')),
-                DataColumn(label: Text('Số bài làm')),
-                DataColumn(label: Text('Ngày')),
+          // --- BẢNG THỐNG KÊ ---
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withValues(alpha: 0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
               ],
-              rows: (data['topics'] as List).map((t) {
-                return DataRow(
-                  cells: [
-                    DataCell(Text(t['name'])),
-                    DataCell(Text('${t['accuracy']}%')),
-                    DataCell(Text('${t['done']}')),
-                    DataCell(Text(t['date'])),
-                    DataCell(
-                      Row(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: mainColor,
-                              minimumSize: const Size(50, 30),
-                            ),
-                            child: const Text(
-                              'Ôn tập',
-                              style: TextStyle(fontSize: 12),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          OutlinedButton(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: const Size(50, 30),
-                              side: const BorderSide(color: Colors.grey),
-                            ),
-                            child: const Text(
-                              'Làm bài',
-                              style: TextStyle(fontSize: 12),
-                            ),
-                          ),
-                        ],
-                      ),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    headingTextStyle: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                  ],
-                );
-              }).toList(),
+                    dataTextStyle: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 13,
+                    ),
+                    columnSpacing: 28,
+                    horizontalMargin: 8,
+                    columns: const [
+                      DataColumn(
+                        label: Center(child: Text('Chủ đề')),
+                        numeric: false,
+                      ),
+                      DataColumn(label: Center(child: Text('Tỉ lệ đúng'))),
+                      DataColumn(label: Center(child: Text('Số bài làm'))),
+                      DataColumn(label: Center(child: Text('Ngày'))),
+                    ],
+                    rows: (data['topics'] as List).map((t) {
+                      final String name = (t['name'] ?? '').toString();
+                      final int accuracy = (t['accuracy'] ?? 0) as int;
+                      final int done = (t['done'] ?? 0) as int;
+                      final String date = (t['date'] ?? '').toString();
+                      return DataRow(
+                        cells: [
+                          DataCell(Center(child: Text(name))),
+                          DataCell(Center(child: Text('$accuracy%'))),
+                          DataCell(Center(child: Text(done.toString()))),
+                          DataCell(Center(child: Text(date))),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -250,7 +254,7 @@ class _StatBox extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 4),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(

@@ -19,7 +19,7 @@ class _MainPageState extends State<MainPage> {
     HomeScreen(),
     QuizHomeScreen(),
     FlashcardHomeScreen(),
-    thongkeScreen(),
+    ThongKeScreen(),
     ProfileScreen(),
   ];
 
@@ -48,12 +48,12 @@ class _MainPageState extends State<MainPage> {
             BottomNavigationBarItem(
               icon: Icon(Icons.quiz_outlined),
               activeIcon: Icon(Icons.quiz),
-              label: 'Quiz',
+              label: 'Câu đố',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.menu_book_outlined),
               activeIcon: Icon(Icons.menu_book),
-              label: 'Flashcard',
+              label: 'Thẻ ghi nhớ',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.bar_chart_rounded),

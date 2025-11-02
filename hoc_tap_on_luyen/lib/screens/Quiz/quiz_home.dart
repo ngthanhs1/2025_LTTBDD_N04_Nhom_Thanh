@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../models/quiz.dart';
 import '../../services/firestore_service.dart';
 import 'create_topic.dart';
@@ -10,12 +11,13 @@ class QuizHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color.fromARGB(255, 131, 129, 138);
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
         title: const Text("Quiz - Chủ đề"),
         centerTitle: true,
-        backgroundColor: Colors.indigo,
+        backgroundColor: const Color.fromARGB(255, 97, 95, 105),
         foregroundColor: Colors.white,
         actions: [
           IconButton(
@@ -63,25 +65,28 @@ class QuizHomeScreen extends StatelessWidget {
             itemCount: topics.length,
             itemBuilder: (context, i) {
               final topic = topics[i];
-              return Card(
-                color: Colors.indigo.shade50,
+              return Container(
                 margin: const EdgeInsets.symmetric(vertical: 6),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 2,
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.indigo,
-                    child: Text(
-                      topic.name.isNotEmpty ? topic.name[0].toUpperCase() : '?',
-                      style: const TextStyle(color: Colors.white),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: Offset(0, 2),
                     ),
+                  ],
+                ),
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.folder_open_rounded,
+                    color: primary,
                   ),
                   title: Text(
                     topic.name,
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       fontSize: 16,
                     ),
                   ),
@@ -89,10 +94,10 @@ class QuizHomeScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Ngày tạo: ${topic.createdAt.toLocal().toString().split(' ').first}",
+                        'Ngày tạo: ${DateFormat('yyyy-MM-dd HH:mm').format(topic.createdAt)}',
                         style: TextStyle(
                           color: Colors.grey.shade700,
-                          fontSize: 13,
+                          fontSize: 12,
                         ),
                       ),
                       FutureBuilder<int>(
@@ -101,40 +106,113 @@ class QuizHomeScreen extends StatelessWidget {
                         ),
                         builder: (context, snap) {
                           return Text(
-                            "${snap.data ?? 0} câu hỏi",
+                            '${snap.data ?? 0} câu hỏi',
                             style: TextStyle(color: Colors.grey.shade800),
                           );
                         },
                       ),
                     ],
                   ),
-                  trailing: IconButton(
-                    icon: const Icon(
-                      Icons.play_circle_fill,
-                      color: Colors.indigo,
-                      size: 32,
-                    ),
-                    onPressed: () async {
-                      final questions = await FirestoreService.instance
-                          .getQuestions(topic.id);
-                      if (questions.isEmpty && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Chủ đề chưa có câu hỏi nào."),
-                          ),
-                        );
-                        return;
-                      }
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => TakeQuizScreen(
-                            topic: topic,
-                            questions: questions,
-                          ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.play_circle_fill,
+                          color: primary,
+                          size: 28,
                         ),
-                      );
-                    },
+                        tooltip: 'Làm bài',
+                        onPressed: () async {
+                          final questions = await FirestoreService.instance
+                              .getQuestions(topic.id);
+                          if (questions.isEmpty && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Chủ đề chưa có câu hỏi nào.'),
+                              ),
+                            );
+                            return;
+                          }
+                          if (!context.mounted) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => TakeQuizScreen(
+                                topic: topic,
+                                questions: questions,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      PopupMenuButton<String>(
+                        tooltip: 'Tùy chọn',
+                        onSelected: (value) async {
+                          if (value == 'rename') {
+                            final name = await _promptRename(
+                              context,
+                              initial: topic.name,
+                              title: 'Đổi tên chủ đề',
+                            );
+                            if (name != null && name.trim().isNotEmpty) {
+                              await FirestoreService.instance
+                                  .updateQuizTopicName(
+                                    topicId: topic.id,
+                                    newName: name,
+                                  );
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Đã đổi tên chủ đề'),
+                                  ),
+                                );
+                              }
+                            }
+                          } else if (value == 'delete') {
+                            final ok = await _confirmDelete(
+                              context,
+                              message:
+                                  'Xóa chủ đề sẽ xóa toàn bộ câu hỏi bên trong. Bạn có chắc? ',
+                            );
+                            if (ok == true) {
+                              await FirestoreService.instance.deleteQuizTopic(
+                                topic.id,
+                              );
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Đã xóa chủ đề'),
+                                  ),
+                                );
+                              }
+                            }
+                          }
+                        },
+                        itemBuilder: (ctx) => const [
+                          PopupMenuItem(
+                            value: 'rename',
+                            child: ListTile(
+                              leading: Icon(Icons.drive_file_rename_outline),
+                              title: Text('Đổi tên'),
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: ListTile(
+                              leading: Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                              ),
+                              title: Text(
+                                'Xóa',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                   onTap: () => Navigator.push(
                     context,
@@ -150,4 +228,55 @@ class QuizHomeScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<String?> _promptRename(
+  BuildContext context, {
+  required String initial,
+  String title = 'Đổi tên',
+}) async {
+  final ctr = TextEditingController(text: initial);
+  return showDialog<String>(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: Text(title),
+      content: TextField(
+        controller: ctr,
+        autofocus: true,
+        decoration: const InputDecoration(hintText: 'Tên mới'),
+        onSubmitted: (_) => Navigator.pop(context, ctr.text.trim()),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Hủy'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context, ctr.text.trim()),
+          child: const Text('Lưu'),
+        ),
+      ],
+    ),
+  );
+}
+
+Future<bool?> _confirmDelete(BuildContext context, {required String message}) {
+  return showDialog<bool>(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Xóa chủ đề'),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Hủy'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Xóa'),
+        ),
+      ],
+    ),
+  );
 }

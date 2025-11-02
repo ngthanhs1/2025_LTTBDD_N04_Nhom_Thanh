@@ -146,37 +146,141 @@ class _TopicTile extends StatelessWidget {
                 children: [
                   const Icon(
                     Icons.layers_rounded,
-                    color: Colors.teal,
+                    color: Color.fromARGB(255, 111, 119, 118),
                     size: 18,
                   ),
                   const SizedBox(width: 4),
                   Text('${s.data ?? 0}'),
-                  const SizedBox(width: 10),
-                  const Icon(
-                    Icons.favorite_rounded,
-                    color: Colors.pinkAccent,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 4),
-                  const Text('1'),
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            OutlinedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => TestFlashcardScreen(topic: topic),
-                  ),
-                );
-              },
-              child: const Text('Ôn tập'),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TestFlashcardScreen(topic: topic),
+                      ),
+                    );
+                  },
+                  child: const Text('Ôn tập'),
+                ),
+                const SizedBox(width: 4),
+                PopupMenuButton<String>(
+                  tooltip: 'Tùy chọn',
+                  onSelected: (value) async {
+                    if (value == 'rename') {
+                      final name = await _promptRename(
+                        context,
+                        initial: topic.name,
+                        title: 'Đổi tên thư mục',
+                      );
+                      if (name != null && name.trim().isNotEmpty) {
+                        await FirestoreService.instance.updateFlashTopicName(
+                          topicId: topic.id,
+                          newName: name,
+                        );
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Đã đổi tên thư mục')),
+                          );
+                        }
+                      }
+                    } else if (value == 'delete') {
+                      final ok = await _confirmDelete(
+                        context,
+                        message:
+                            'Xóa thư mục sẽ xóa toàn bộ thẻ bên trong. Bạn có chắc? ',
+                      );
+                      if (ok == true) {
+                        await FirestoreService.instance.deleteFlashTopic(
+                          topic.id,
+                        );
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Đã xóa thư mục')),
+                          );
+                        }
+                      }
+                    }
+                  },
+                  itemBuilder: (ctx) => const [
+                    PopupMenuItem(
+                      value: 'rename',
+                      child: ListTile(
+                        leading: Icon(Icons.drive_file_rename_outline),
+                        title: Text('Đổi tên'),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: ListTile(
+                        leading: Icon(Icons.delete_outline, color: Colors.red),
+                        title: Text('Xóa', style: TextStyle(color: Colors.red)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
   }
+}
+
+Future<String?> _promptRename(
+  BuildContext context, {
+  required String initial,
+  String title = 'Đổi tên',
+}) async {
+  final ctr = TextEditingController(text: initial);
+  return showDialog<String>(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: Text(title),
+      content: TextField(
+        controller: ctr,
+        autofocus: true,
+        decoration: const InputDecoration(hintText: 'Tên mới'),
+        onSubmitted: (_) => Navigator.pop(context, ctr.text.trim()),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Hủy'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context, ctr.text.trim()),
+          child: const Text('Lưu'),
+        ),
+      ],
+    ),
+  );
+}
+
+Future<bool?> _confirmDelete(BuildContext context, {required String message}) {
+  return showDialog<bool>(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Xóa'),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Hủy'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Xóa'),
+        ),
+      ],
+    ),
+  );
 }

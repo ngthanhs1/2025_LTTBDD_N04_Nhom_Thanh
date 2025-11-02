@@ -20,7 +20,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   void dispose() {
     _topicCtrl.dispose();
     _qCtrl.dispose();
-    for (final c in _opts) c.dispose();
+    for (final c in _opts) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -38,7 +40,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         'correctIndex': _correct,
       });
       _qCtrl.clear();
-      for (final c in _opts) c.clear();
+      for (final c in _opts) {
+        c.clear();
+      }
       _correct = 0;
     });
   }
@@ -82,10 +86,13 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF6C4CE3);
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
         title: const Text('Tạo chủ đề & câu hỏi'),
-        backgroundColor: Colors.indigo,
+        centerTitle: true,
+        backgroundColor: primary,
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
@@ -93,79 +100,186 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: _topicCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Tên chủ đề',
-                border: OutlineInputBorder(),
+            // Chủ đề
+            Card(
+              elevation: 1,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Thông tin chủ đề',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _topicCtrl,
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.folder_outlined),
+                        labelText: 'Tên chủ đề',
+                        hintText: 'VD: Lập trình Dart cơ bản',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
+
             const SizedBox(height: 16),
+
+            // Soạn câu hỏi
             _buildQuestionComposer(),
+
             const SizedBox(height: 16),
+
+            // Danh sách câu hỏi đã thêm
             if (_questions.isNotEmpty) ...[
-              const Text(
-                'Danh sách câu hỏi đã thêm:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              ..._questions.asMap().entries.map((e) {
-                final q = e.value;
-                return Card(
-                  child: ListTile(
-                    title: Text('Câu ${e.key + 1}: ${q['text']}'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: List.generate(4, (i) {
-                        final isCorrect = i == q['correctIndex'];
-                        return Text(
-                          '${String.fromCharCode(65 + i)}. ${q['options'][i]}'
-                          '${isCorrect ? "" : ""}',
-                          style: TextStyle(
-                            color: isCorrect
-                                ? const Color.fromARGB(255, 197, 231, 198)
-                                : Colors.black87,
+              Card(
+                elevation: 1,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Câu hỏi đã thêm',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      ..._questions.asMap().entries.map((e) {
+                        final q = e.value;
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              'Câu ${e.key + 1}: ${q['text']}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: List.generate(4, (i) {
+                                  final isCorrect = i == q['correctIndex'];
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 2,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 22,
+                                          height: 22,
+                                          alignment: Alignment.center,
+                                          margin: const EdgeInsets.only(
+                                            right: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: isCorrect
+                                                ? Colors.green.withValues(
+                                                    alpha: .1,
+                                                  )
+                                                : Colors.grey.withValues(
+                                                    alpha: .1,
+                                                  ),
+                                          ),
+                                          child: Text(
+                                            String.fromCharCode(65 + i),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: isCorrect
+                                                  ? Colors.green
+                                                  : Colors.grey.shade700,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            q['options'][i],
+                                            style: TextStyle(
+                                              color: isCorrect
+                                                  ? Colors.green.shade700
+                                                  : Colors.black87,
+                                            ),
+                                          ),
+                                        ),
+                                        if (isCorrect)
+                                          const Icon(
+                                            Icons.check_circle,
+                                            color: Colors.green,
+                                            size: 18,
+                                          ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                              ),
+                              onPressed: () =>
+                                  setState(() => _questions.removeAt(e.key)),
+                            ),
                           ),
                         );
                       }),
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      onPressed: () =>
-                          setState(() => _questions.removeAt(e.key)),
-                    ),
-                  ),
-                );
-              }),
-            ],
-            const SizedBox(height: 20),
-            Center(
-              child: FilledButton(
-                onPressed: _saving ? null : _saveTopic,
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.indigo,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 14,
+                    ],
                   ),
                 ),
-                child: _saving
-                    ? const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Text('Đang lưu...'),
-                        ],
+              ),
+            ],
+
+            const SizedBox(height: 20),
+
+            // Lưu chủ đề
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _saving ? null : _saveTopic,
+                icon: _saving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
-                    : const Text('Lưu chủ đề'),
+                    : const Icon(Icons.save_rounded),
+                label: Text(_saving ? 'Đang lưu...' : 'Lưu chủ đề'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ),
           ],
@@ -175,40 +289,104 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   Widget _buildQuestionComposer() {
+    const primary = Color(0xFF6C4CE3);
     return Card(
       elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text(
+              'Soạn câu hỏi',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+            ),
+            const SizedBox(height: 10),
             TextField(
               controller: _qCtrl,
+              maxLines: null,
               decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.help_outline),
                 labelText: 'Nội dung câu hỏi',
+                hintText: 'Nhập câu hỏi...',
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             ...List.generate(4, (i) {
-              return RadioListTile<int>(
-                value: i,
-                groupValue: _correct,
-                onChanged: (v) => setState(() => _correct = v!),
-                title: TextField(
-                  controller: _opts[i],
-                  decoration: InputDecoration(
-                    labelText: 'Đáp án ${String.fromCharCode(65 + i)}',
+              final label = String.fromCharCode(65 + i);
+              final isCorrect = _correct == i;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isCorrect
+                        ? primary.withValues(alpha: .5)
+                        : Colors.grey.shade300,
                   ),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 14,
+                      backgroundColor: isCorrect
+                          ? primary.withValues(alpha: .15)
+                          : Colors.grey.shade200,
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isCorrect ? primary : Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: _opts[i],
+                        decoration: InputDecoration(
+                          hintText: 'Đáp án $label',
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    ChoiceChip(
+                      selected: isCorrect,
+                      label: const Text('Đúng'),
+                      selectedColor: primary.withValues(alpha: .15),
+                      labelStyle: TextStyle(
+                        color: isCorrect ? primary : Colors.black87,
+                      ),
+                      onSelected: (_) => setState(() => _correct = i),
+                    ),
+                  ],
                 ),
               );
             }),
+            const SizedBox(height: 6),
             Align(
               alignment: Alignment.centerRight,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.add),
-                label: const Text('Thêm câu hỏi'),
+              child: FilledButton.icon(
                 onPressed: _addQuestion,
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('Thêm câu hỏi'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: primary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ),
           ],
