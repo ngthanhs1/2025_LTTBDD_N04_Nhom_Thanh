@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
 import '../../services/firestore_service.dart';
 import '../Quiz/quiz_home.dart';
 import '../Flashcard/flashcard_home.dart';
@@ -36,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FB),
       appBar: AppBar(
-        title: const Text('Trang chủ'),
+        title: Text(AppLocalizations.of(context).homeTitle),
         centerTitle: true,
         elevation: 0,
       ),
@@ -57,9 +58,12 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // --- CHỨC NĂNG ---
-                const Text(
-                  'Chức năng',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  AppLocalizations.of(context).homeFunctions,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 GridView.count(
@@ -71,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     _FeatureCard(
                       icon: Icons.quiz_rounded,
-                      title: 'Câu đố',
+                      title: AppLocalizations.of(context).homeQuiz,
                       color: const Color(0xFFEFF3FF),
                       onTap: () => Navigator.push(
                         context,
@@ -82,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     _FeatureCard(
                       icon: Icons.menu_book_rounded,
-                      title: 'Thẻ ghi nhớ',
+                      title: AppLocalizations.of(context).homeFlashcards,
                       color: const Color(0xFFF3F7FF),
                       onTap: () => Navigator.push(
                         context,
@@ -96,9 +100,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 24),
 
-                const Text(
-                  'Thống kê hôm nay',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  AppLocalizations.of(context).homeTodayStats,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 12),
 
@@ -111,19 +118,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     _StatCard(
                       icon: Icons.timer_outlined,
-                      title: 'Hôm nay',
+                      title: AppLocalizations.of(context).statToday,
                       value: '${stats['studyTime']} phút',
                       color: Colors.grey.shade100,
                     ),
                     _StatCard(
                       icon: Icons.check_circle_outline,
-                      title: 'Quiz đã làm',
+                      title: AppLocalizations.of(context).statQuizzesDone,
                       value: '${stats['quizDone']}',
                       color: Colors.grey.shade100,
                     ),
                     _StatCard(
                       icon: Icons.speed_outlined,
-                      title: 'Điểm TB',
+                      title: AppLocalizations.of(context).statAverageScore,
                       value: '${stats['avgScore']}%',
                       color: Colors.grey.shade100,
                     ),
@@ -142,9 +149,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Thống kê Câu đố',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context).quizStatsTitle,
+                          style: const TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
                           ),
@@ -154,13 +161,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Expanded(
                               child: _KeyVal(
-                                label: 'Chủ đề',
+                                label: AppLocalizations.of(context).labelTopics,
                                 value: '${stats['quizTopics']}',
                               ),
                             ),
                             Expanded(
                               child: _KeyVal(
-                                label: 'Câu hỏi',
+                                label: AppLocalizations.of(
+                                  context,
+                                ).labelQuestions,
                                 value: '${stats['quizQuestions']}',
                               ),
                             ),
@@ -171,13 +180,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Expanded(
                               child: _KeyVal(
-                                label: 'Số phiên',
+                                label: AppLocalizations.of(
+                                  context,
+                                ).labelSessions,
                                 value: '${stats['quizDone']}',
                               ),
                             ),
                             Expanded(
                               child: _KeyVal(
-                                label: 'Độ chính xác',
+                                label: AppLocalizations.of(
+                                  context,
+                                ).labelAccuracy,
                                 value: '${stats['avgScore']}%',
                               ),
                             ),
@@ -200,9 +213,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Thống kê thẻ ghi nhớ',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context).flashStatsTitle,
+                          style: const TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
                           ),
@@ -212,13 +225,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Expanded(
                               child: _KeyVal(
-                                label: 'Chủ đề',
+                                label: AppLocalizations.of(context).labelTopics,
                                 value: '${stats['flashTopics']}',
                               ),
                             ),
                             Expanded(
                               child: _KeyVal(
-                                label: 'Tổng thẻ',
+                                label: AppLocalizations.of(
+                                  context,
+                                ).labelFlashTotalCards,
                                 value: '${stats['flashTotal']}',
                               ),
                             ),
@@ -229,13 +244,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Expanded(
                               child: _KeyVal(
-                                label: 'Số phiên',
+                                label: AppLocalizations.of(
+                                  context,
+                                ).labelSessions,
                                 value: '${stats['flashSessions']}',
                               ),
                             ),
                             Expanded(
                               child: _KeyVal(
-                                label: 'Độ chính xác',
+                                label: AppLocalizations.of(
+                                  context,
+                                ).labelAccuracy,
                                 value: '${stats['flashAccuracy']}%',
                               ),
                             ),
@@ -407,9 +426,9 @@ class _UsageChartCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Hoạt động theo ngày (tháng này)",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          Text(
+            AppLocalizations.of(context).dailyActivityThisMonth,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           const SizedBox(height: 8),
           SizedBox(

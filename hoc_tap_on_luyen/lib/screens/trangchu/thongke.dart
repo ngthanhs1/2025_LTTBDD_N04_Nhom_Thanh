@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../services/firestore_service.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
 
 class ThongKeScreen extends StatefulWidget {
   const ThongKeScreen({super.key});
@@ -23,15 +24,21 @@ class _ThongKeScreenState extends State<ThongKeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Thống kê học tập'),
+        title: Text(AppLocalizations.of(context).statsTitle),
         centerTitle: true,
         backgroundColor: Colors.indigo,
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
-          tabs: const [
-            Tab(icon: Icon(Icons.quiz_rounded), text: 'Quiz'),
-            Tab(icon: Icon(Icons.style_rounded), text: 'Flashcard'),
+          tabs: [
+            Tab(
+              icon: const Icon(Icons.quiz_rounded),
+              text: AppLocalizations.of(context).tabQuiz,
+            ),
+            Tab(
+              icon: const Icon(Icons.style_rounded),
+              text: AppLocalizations.of(context).tabFlashcard,
+            ),
           ],
         ),
       ),
@@ -58,7 +65,9 @@ class _ThongKeScreenState extends State<ThongKeScreen>
         if (snap.hasError) {
           return Center(
             child: Text(
-              'Lỗi tải thống kê: ${snap.error}',
+              AppLocalizations.of(
+                context,
+              ).errorLoadingStatsWithMessage('${snap.error}'),
               textAlign: TextAlign.center,
             ),
           );
@@ -89,31 +98,31 @@ class _ThongKeScreenState extends State<ThongKeScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Thống kê tổng',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            AppLocalizations.of(context).statsOverall,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _StatBox(
-                label: 'Số chủ đề đã làm',
+                label: AppLocalizations.of(context).boxTopicsDone,
                 value: data['done'].toString(),
                 color: mainColor,
               ),
               _StatBox(
-                label: 'Độ chính xác TB',
+                label: AppLocalizations.of(context).boxAvgAccuracy,
                 value: '${data['accuracy']}%',
                 color: mainColor,
               ),
               _StatBox(
-                label: 'Tổng đúng',
+                label: AppLocalizations.of(context).boxTotalCorrect,
                 value: data['correct'].toString(),
                 color: mainColor,
               ),
               _StatBox(
-                label: 'Tổng sai',
+                label: AppLocalizations.of(context).boxTotalWrong,
                 value: data['wrong'].toString(),
                 color: Colors.red,
               ),
@@ -121,9 +130,9 @@ class _ThongKeScreenState extends State<ThongKeScreen>
           ),
           const SizedBox(height: 20),
 
-          const Text(
-            'Tỉ lệ đúng / sai tổng thể',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+          Text(
+            AppLocalizations.of(context).correctWrongRatioTitle,
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           SizedBox(
@@ -154,21 +163,21 @@ class _ThongKeScreenState extends State<ThongKeScreen>
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.circle, color: Colors.green, size: 12),
-              SizedBox(width: 4),
-              Text('Đúng'),
-              SizedBox(width: 12),
-              Icon(Icons.circle, color: Colors.red, size: 12),
-              SizedBox(width: 4),
-              Text('Sai'),
+            children: [
+              const Icon(Icons.circle, color: Colors.green, size: 12),
+              const SizedBox(width: 4),
+              Text(AppLocalizations.of(context).correctLabel),
+              const SizedBox(width: 12),
+              const Icon(Icons.circle, color: Colors.red, size: 12),
+              const SizedBox(width: 4),
+              Text(AppLocalizations.of(context).wrongLabel),
             ],
           ),
           const SizedBox(height: 24),
 
-          const Text(
-            'Bảng thống kê theo chủ đề',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+          Text(
+            AppLocalizations.of(context).perTopicTableTitle,
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           // --- BẢNG THỐNG KÊ ---
@@ -202,14 +211,30 @@ class _ThongKeScreenState extends State<ThongKeScreen>
                     ),
                     columnSpacing: 28,
                     horizontalMargin: 8,
-                    columns: const [
+                    columns: [
                       DataColumn(
-                        label: Center(child: Text('Chủ đề')),
+                        label: Center(
+                          child: Text(AppLocalizations.of(context).columnTopic),
+                        ),
                         numeric: false,
                       ),
-                      DataColumn(label: Center(child: Text('Tỉ lệ đúng'))),
-                      DataColumn(label: Center(child: Text('Số bài làm'))),
-                      DataColumn(label: Center(child: Text('Ngày'))),
+                      DataColumn(
+                        label: Center(
+                          child: Text(
+                            AppLocalizations.of(context).columnAccuracy,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Center(
+                          child: Text(AppLocalizations.of(context).columnDone),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Center(
+                          child: Text(AppLocalizations.of(context).columnDate),
+                        ),
+                      ),
                     ],
                     rows: (data['topics'] as List).map((t) {
                       final String name = (t['name'] ?? '').toString();

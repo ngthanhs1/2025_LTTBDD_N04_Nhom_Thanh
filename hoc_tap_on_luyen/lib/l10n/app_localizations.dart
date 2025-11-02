@@ -332,6 +332,192 @@ abstract class AppLocalizations {
   /// **'Deleting the topic will remove all its questions. Are you sure?'**
   String get quizDeleteTopicConfirm;
 
+  /// No description provided for @homeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homeTitle;
+
+  /// No description provided for @homeFunctions.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get homeFunctions;
+
+  /// No description provided for @homeQuiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz'**
+  String get homeQuiz;
+
+  /// No description provided for @homeFlashcards.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashcards'**
+  String get homeFlashcards;
+
+  /// No description provided for @homeTodayStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s stats'**
+  String get homeTodayStats;
+
+  /// No description provided for @statToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get statToday;
+
+  /// No description provided for @statQuizzesDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Quizzes done'**
+  String get statQuizzesDone;
+
+  /// No description provided for @statAverageScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Average score'**
+  String get statAverageScore;
+
+  /// No description provided for @quizStatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz overview'**
+  String get quizStatsTitle;
+
+  /// No description provided for @labelTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Topics'**
+  String get labelTopics;
+
+  /// No description provided for @labelQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get labelQuestions;
+
+  /// No description provided for @labelSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions'**
+  String get labelSessions;
+
+  /// No description provided for @labelAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Accuracy'**
+  String get labelAccuracy;
+
+  /// No description provided for @flashStatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashcards overview'**
+  String get flashStatsTitle;
+
+  /// No description provided for @labelFlashTotalCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Total cards'**
+  String get labelFlashTotalCards;
+
+  /// No description provided for @dailyActivityThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily activity (this month)'**
+  String get dailyActivityThisMonth;
+
+  /// No description provided for @statsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Study statistics'**
+  String get statsTitle;
+
+  /// No description provided for @statsOverall.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall statistics'**
+  String get statsOverall;
+
+  /// No description provided for @correctWrongRatioTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall correct / wrong ratio'**
+  String get correctWrongRatioTitle;
+
+  /// No description provided for @correctLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct'**
+  String get correctLabel;
+
+  /// No description provided for @wrongLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong'**
+  String get wrongLabel;
+
+  /// No description provided for @perTopicTableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Per-topic summary'**
+  String get perTopicTableTitle;
+
+  /// No description provided for @columnTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Topic'**
+  String get columnTopic;
+
+  /// No description provided for @columnAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Accuracy'**
+  String get columnAccuracy;
+
+  /// No description provided for @columnDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Attempts'**
+  String get columnDone;
+
+  /// No description provided for @columnDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get columnDate;
+
+  /// No description provided for @errorLoadingStatsWithMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load statistics: {error}'**
+  String errorLoadingStatsWithMessage(Object error);
+
+  /// No description provided for @boxTopicsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Topics done'**
+  String get boxTopicsDone;
+
+  /// No description provided for @boxAvgAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. accuracy'**
+  String get boxAvgAccuracy;
+
+  /// No description provided for @boxTotalCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Total correct'**
+  String get boxTotalCorrect;
+
+  /// No description provided for @boxTotalWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Total wrong'**
+  String get boxTotalWrong;
+
   /// No description provided for @flashTitleFolders.
   ///
   /// In en, this message translates to:

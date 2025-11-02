@@ -131,6 +131,101 @@ class AppLocalizationsVi extends AppLocalizations {
       'Xóa chủ đề sẽ xóa toàn bộ câu hỏi bên trong. Bạn có chắc?';
 
   @override
+  String get homeTitle => 'Trang chủ';
+
+  @override
+  String get homeFunctions => 'Chức năng';
+
+  @override
+  String get homeQuiz => 'Câu đố';
+
+  @override
+  String get homeFlashcards => 'Thẻ ghi nhớ';
+
+  @override
+  String get homeTodayStats => 'Thống kê hôm nay';
+
+  @override
+  String get statToday => 'Hôm nay';
+
+  @override
+  String get statQuizzesDone => 'Quiz đã làm';
+
+  @override
+  String get statAverageScore => 'Điểm TB';
+
+  @override
+  String get quizStatsTitle => 'Thống kê Câu đố';
+
+  @override
+  String get labelTopics => 'Chủ đề';
+
+  @override
+  String get labelQuestions => 'Câu hỏi';
+
+  @override
+  String get labelSessions => 'Số phiên';
+
+  @override
+  String get labelAccuracy => 'Độ chính xác';
+
+  @override
+  String get flashStatsTitle => 'Thống kê thẻ ghi nhớ';
+
+  @override
+  String get labelFlashTotalCards => 'Tổng thẻ';
+
+  @override
+  String get dailyActivityThisMonth => 'Hoạt động theo ngày (tháng này)';
+
+  @override
+  String get statsTitle => 'Thống kê học tập';
+
+  @override
+  String get statsOverall => 'Thống kê tổng';
+
+  @override
+  String get correctWrongRatioTitle => 'Tỉ lệ đúng / sai tổng thể';
+
+  @override
+  String get correctLabel => 'Đúng';
+
+  @override
+  String get wrongLabel => 'Sai';
+
+  @override
+  String get perTopicTableTitle => 'Bảng thống kê theo chủ đề';
+
+  @override
+  String get columnTopic => 'Chủ đề';
+
+  @override
+  String get columnAccuracy => 'Tỉ lệ đúng';
+
+  @override
+  String get columnDone => 'Số bài làm';
+
+  @override
+  String get columnDate => 'Ngày';
+
+  @override
+  String errorLoadingStatsWithMessage(Object error) {
+    return 'Lỗi tải thống kê: $error';
+  }
+
+  @override
+  String get boxTopicsDone => 'Số chủ đề đã làm';
+
+  @override
+  String get boxAvgAccuracy => 'Độ chính xác TB';
+
+  @override
+  String get boxTotalCorrect => 'Tổng đúng';
+
+  @override
+  String get boxTotalWrong => 'Tổng sai';
+
+  @override
   String get flashTitleFolders => 'Thư mục';
 
   @override

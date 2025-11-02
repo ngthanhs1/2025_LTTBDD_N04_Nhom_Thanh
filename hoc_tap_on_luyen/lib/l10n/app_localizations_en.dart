@@ -131,6 +131,101 @@ class AppLocalizationsEn extends AppLocalizations {
       'Deleting the topic will remove all its questions. Are you sure?';
 
   @override
+  String get homeTitle => 'Home';
+
+  @override
+  String get homeFunctions => 'Features';
+
+  @override
+  String get homeQuiz => 'Quiz';
+
+  @override
+  String get homeFlashcards => 'Flashcards';
+
+  @override
+  String get homeTodayStats => 'Today’s stats';
+
+  @override
+  String get statToday => 'Today';
+
+  @override
+  String get statQuizzesDone => 'Quizzes done';
+
+  @override
+  String get statAverageScore => 'Average score';
+
+  @override
+  String get quizStatsTitle => 'Quiz overview';
+
+  @override
+  String get labelTopics => 'Topics';
+
+  @override
+  String get labelQuestions => 'Questions';
+
+  @override
+  String get labelSessions => 'Sessions';
+
+  @override
+  String get labelAccuracy => 'Accuracy';
+
+  @override
+  String get flashStatsTitle => 'Flashcards overview';
+
+  @override
+  String get labelFlashTotalCards => 'Total cards';
+
+  @override
+  String get dailyActivityThisMonth => 'Daily activity (this month)';
+
+  @override
+  String get statsTitle => 'Study statistics';
+
+  @override
+  String get statsOverall => 'Overall statistics';
+
+  @override
+  String get correctWrongRatioTitle => 'Overall correct / wrong ratio';
+
+  @override
+  String get correctLabel => 'Correct';
+
+  @override
+  String get wrongLabel => 'Wrong';
+
+  @override
+  String get perTopicTableTitle => 'Per-topic summary';
+
+  @override
+  String get columnTopic => 'Topic';
+
+  @override
+  String get columnAccuracy => 'Accuracy';
+
+  @override
+  String get columnDone => 'Attempts';
+
+  @override
+  String get columnDate => 'Date';
+
+  @override
+  String errorLoadingStatsWithMessage(Object error) {
+    return 'Failed to load statistics: $error';
+  }
+
+  @override
+  String get boxTopicsDone => 'Topics done';
+
+  @override
+  String get boxAvgAccuracy => 'Avg. accuracy';
+
+  @override
+  String get boxTotalCorrect => 'Total correct';
+
+  @override
+  String get boxTotalWrong => 'Total wrong';
+
+  @override
   String get flashTitleFolders => 'Folders';
 
   @override
