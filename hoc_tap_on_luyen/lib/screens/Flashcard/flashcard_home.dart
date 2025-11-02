@@ -5,6 +5,7 @@ import '../../services/firestore_service.dart';
 import 'add_chude.dart';
 import 'flashcard_topic.dart';
 import 'test_flashcard.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
 
 class FlashcardHomeScreen extends StatelessWidget {
   const FlashcardHomeScreen({super.key});
@@ -15,23 +16,23 @@ class FlashcardHomeScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
         backgroundColor: const Color(0xFF6C4CE3),
-        title: const Text(
-          'Thư mục',
-          style: TextStyle(fontWeight: FontWeight.w700),
+        title: Text(
+          AppLocalizations.of(context).flashTitleFolders,
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
         actions: [
           IconButton(
-            tooltip: 'Sao lưu',
+            tooltip: AppLocalizations.of(context).flashBackup,
             icon: const Icon(Icons.download_rounded, color: Colors.white),
             onPressed: () {},
           ),
           IconButton(
-            tooltip: 'Đỗ',
+            tooltip: AppLocalizations.of(context).flashChecklist,
             icon: const Icon(Icons.checklist_rounded, color: Colors.white),
             onPressed: () {},
           ),
           IconButton(
-            tooltip: 'Tìm kiếm',
+            tooltip: AppLocalizations.of(context).flashSearch,
             icon: const Icon(Icons.search_rounded, color: Colors.white),
             onPressed: () {},
           ),
@@ -53,13 +54,17 @@ class FlashcardHomeScreen extends StatelessWidget {
               // Không cần setState; StreamBuilder tự update.
               // ok chỉ để bạn biết có lưu xong hay không nếu muốn hiển thị SnackBar.
               if (ok == true && context.mounted) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Đã tạo thư mục')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      AppLocalizations.of(context).flashCreatedFolder,
+                    ),
+                  ),
+                );
               }
             },
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Mới'),
+            label: Text(AppLocalizations.of(context).flashNew),
           ),
           const SizedBox(width: 8),
         ],
@@ -72,11 +77,11 @@ class FlashcardHomeScreen extends StatelessWidget {
           }
           final topics = snap.data ?? [];
           if (topics.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
-                'Chưa có thư mục nào.\nNhấn "Mới" để tạo',
+                AppLocalizations.of(context).flashNoFolders,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey),
+                style: const TextStyle(color: Colors.grey),
               ),
             );
           }
@@ -147,7 +152,6 @@ class _TopicTile extends StatelessWidget {
                   const Icon(
                     Icons.layers_rounded,
                     color: Color.fromARGB(255, 111, 119, 118),
-                    size: 18,
                   ),
                   const SizedBox(width: 4),
                   Text('${s.data ?? 0}'),
@@ -156,7 +160,6 @@ class _TopicTile extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 OutlinedButton(
                   onPressed: () {
@@ -167,60 +170,62 @@ class _TopicTile extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text('Ôn tập'),
+                  child: Text(AppLocalizations.of(context).flashPractice),
                 ),
                 const SizedBox(width: 4),
                 PopupMenuButton<String>(
-                  tooltip: 'Tùy chọn',
+                  tooltip: AppLocalizations.of(context).actionOptions,
                   onSelected: (value) async {
                     if (value == 'rename') {
                       final name = await _promptRename(
                         context,
                         initial: topic.name,
-                        title: 'Đổi tên thư mục',
+                        title: AppLocalizations.of(
+                          context,
+                        ).flashRenameFolderTitle,
                       );
                       if (name != null && name.trim().isNotEmpty) {
                         await FirestoreService.instance.updateFlashTopicName(
                           topicId: topic.id,
                           newName: name,
                         );
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Đã đổi tên thư mục')),
-                          );
-                        }
                       }
                     } else if (value == 'delete') {
                       final ok = await _confirmDelete(
                         context,
-                        message:
-                            'Xóa thư mục sẽ xóa toàn bộ thẻ bên trong. Bạn có chắc? ',
+                        title: AppLocalizations.of(
+                          context,
+                        ).flashDeleteFolderTitle,
+                        message: AppLocalizations.of(
+                          context,
+                        ).flashDeleteFolderConfirm,
                       );
                       if (ok == true) {
                         await FirestoreService.instance.deleteFlashTopic(
                           topic.id,
                         );
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Đã xóa thư mục')),
-                          );
-                        }
                       }
                     }
                   },
-                  itemBuilder: (ctx) => const [
+                  itemBuilder: (ctx) => [
                     PopupMenuItem(
                       value: 'rename',
                       child: ListTile(
-                        leading: Icon(Icons.drive_file_rename_outline),
-                        title: Text('Đổi tên'),
+                        leading: const Icon(Icons.drive_file_rename_outline),
+                        title: Text(AppLocalizations.of(ctx).actionRename),
                       ),
                     ),
                     PopupMenuItem(
                       value: 'delete',
                       child: ListTile(
-                        leading: Icon(Icons.delete_outline, color: Colors.red),
-                        title: Text('Xóa', style: TextStyle(color: Colors.red)),
+                        leading: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.red,
+                        ),
+                        title: Text(
+                          AppLocalizations.of(ctx).actionDelete,
+                          style: const TextStyle(color: Colors.red),
+                        ),
                       ),
                     ),
                   ],
@@ -237,48 +242,51 @@ class _TopicTile extends StatelessWidget {
 Future<String?> _promptRename(
   BuildContext context, {
   required String initial,
-  String title = 'Đổi tên',
-}) async {
+  String? title,
+}) {
   final ctr = TextEditingController(text: initial);
   return showDialog<String>(
     context: context,
     builder: (_) => AlertDialog(
-      title: Text(title),
+      title: Text(title ?? AppLocalizations.of(context).actionRename),
       content: TextField(
         controller: ctr,
         autofocus: true,
-        decoration: const InputDecoration(hintText: 'Tên mới'),
-        onSubmitted: (_) => Navigator.pop(context, ctr.text.trim()),
+        decoration: const InputDecoration(),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Hủy'),
+          child: Text(AppLocalizations.of(context).actionCancel),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, ctr.text.trim()),
-          child: const Text('Lưu'),
+          child: Text(AppLocalizations.of(context).actionSave),
         ),
       ],
     ),
   );
 }
 
-Future<bool?> _confirmDelete(BuildContext context, {required String message}) {
+Future<bool?> _confirmDelete(
+  BuildContext context, {
+  required String title,
+  required String message,
+}) {
   return showDialog<bool>(
     context: context,
     builder: (_) => AlertDialog(
-      title: const Text('Xóa'),
+      title: Text(title),
       content: Text(message),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('Hủy'),
+          child: Text(AppLocalizations.of(context).actionCancel),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
           onPressed: () => Navigator.pop(context, true),
-          child: const Text('Xóa'),
+          child: Text(AppLocalizations.of(context).actionDelete),
         ),
       ],
     ),

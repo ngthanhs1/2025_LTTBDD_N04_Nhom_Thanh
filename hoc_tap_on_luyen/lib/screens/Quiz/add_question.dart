@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
 import '../../services/firestore_service.dart';
 
 class AddQuestionScreen extends StatefulWidget {
@@ -31,7 +32,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
-        title: const Text('Thêm câu hỏi'),
+        title: Text(AppLocalizations.of(context).addQuestionTitle),
         centerTitle: true,
         backgroundColor: primary,
         foregroundColor: Colors.white,
@@ -52,21 +53,21 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Nội dung câu hỏi',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                      Text(
+                        AppLocalizations.of(context).questionContent,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _question,
                         maxLines: null,
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.help_outline),
-                          hintText: 'Nhập câu hỏi...',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.help_outline),
+                          hintText: AppLocalizations.of(context).enterQuestion,
+                          border: const OutlineInputBorder(),
                         ),
                         validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Nhập nội dung câu hỏi'
+                            ? AppLocalizations.of(context).enterQuestion
                             : null,
                       ),
                     ],
@@ -86,9 +87,9 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Các đáp án',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                      Text(
+                        AppLocalizations.of(context).answersLabel,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 8),
                       ...List.generate(4, (i) {
@@ -122,12 +123,14 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                                 child: TextFormField(
                                   controller: _options[i],
                                   decoration: InputDecoration(
-                                    hintText: 'Đáp án $label',
+                                    hintText: AppLocalizations.of(
+                                      context,
+                                    ).answerHint(label),
                                     border: InputBorder.none,
                                   ),
                                   validator: (v) =>
                                       (v == null || v.trim().isEmpty)
-                                      ? 'Nhập đáp án'
+                                      ? AppLocalizations.of(context).enterAnswer
                                       : null,
                                 ),
                               ),
@@ -137,7 +140,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                       }),
 
                       const SizedBox(height: 6),
-                      const Text('Đáp án đúng'),
+                      Text(AppLocalizations.of(context).correctAnswer),
                       const SizedBox(height: 6),
                       Wrap(
                         spacing: 8,
@@ -174,7 +177,11 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                           ),
                         )
                       : const Icon(Icons.add_rounded),
-                  label: Text(_saving ? 'Đang lưu...' : 'Thêm câu hỏi'),
+                  label: Text(
+                    _saving
+                        ? AppLocalizations.of(context).adding
+                        : AppLocalizations.of(context).addQuestionTitle,
+                  ),
                   style: FilledButton.styleFrom(
                     backgroundColor: primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -203,9 +210,9 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
     );
 
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Đã thêm câu hỏi!')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(AppLocalizations.of(context).addedQuestion)),
+    );
 
     _question.clear();
     for (final o in _options) {

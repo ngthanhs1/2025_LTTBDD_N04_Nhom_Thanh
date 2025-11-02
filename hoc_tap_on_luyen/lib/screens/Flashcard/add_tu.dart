@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
 import '../../models/flashcard.dart';
 import '../../services/firestore_service.dart';
 
@@ -40,7 +41,11 @@ class _AddTuScreenState extends State<AddTuScreen> {
     final b = _backCtr.text.trim();
     if (f.isEmpty || b.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập Mặt trước và Mặt sau')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context).validationFrontBackRequired,
+          ),
+        ),
       );
       return;
     }
@@ -76,7 +81,9 @@ class _AddTuScreenState extends State<AddTuScreen> {
       _noteCtr.clear();
       FocusScope.of(context).requestFocus(FocusNode());
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã lưu – tiếp tục tạo thẻ mới')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).savedContinueAdding),
+        ),
       );
     }
   }
@@ -87,39 +94,46 @@ class _AddTuScreenState extends State<AddTuScreen> {
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
         backgroundColor: const Color(0xFF6C4CE3),
-        title: Text(_isEditing ? 'Chỉnh sửa thẻ' : 'Tạo thẻ mới'),
+        title: Text(
+          _isEditing
+              ? AppLocalizations.of(context).addWordTitleEdit
+              : AppLocalizations.of(context).addWordTitleNew,
+        ),
         actions: [
           if (!_isEditing)
             TextButton.icon(
               onPressed: _saving ? null : () => _save(pop: false),
               icon: const Icon(Icons.save_as_rounded, color: Colors.white),
-              label: const Text(
-                'Lưu & tạo',
-                style: TextStyle(color: Colors.white),
+              label: Text(
+                AppLocalizations.of(context).saveAndCreate,
+                style: const TextStyle(color: Colors.white),
               ),
             ),
           TextButton.icon(
             onPressed: _saving ? null : _save,
             icon: const Icon(Icons.save_rounded, color: Colors.white),
-            label: const Text('Lưu', style: TextStyle(color: Colors.white)),
+            label: Text(
+              AppLocalizations.of(context).actionSave,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         children: [
-          _sectionTitle('Mặt trước'),
+          _sectionTitle(AppLocalizations.of(context).labelFront),
           _bigInput(controller: _frontCtr, hint: '…'),
           const SizedBox(height: 16),
-          _sectionTitle('Mặt sau'),
+          _sectionTitle(AppLocalizations.of(context).labelBack),
           _bigInput(controller: _backCtr, hint: '…'),
           const SizedBox(height: 16),
-          _sectionTitle('Ghi chú'),
+          _sectionTitle(AppLocalizations.of(context).labelNote),
           _bigInput(controller: _noteCtr, hint: '…', maxLines: 5),
           const SizedBox(height: 20),
           OutlinedButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
+            child: Text(AppLocalizations.of(context).actionCancel),
           ),
         ],
       ),

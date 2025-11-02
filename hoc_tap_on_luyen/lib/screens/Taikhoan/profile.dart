@@ -4,6 +4,7 @@ import 'thongtin_tk.dart';
 import 'quen_mk.dart';
 import 'chinh_sach.dart';
 import 'ngonngu.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -13,7 +14,7 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
       appBar: AppBar(
-        title: const Text('Tài khoản'),
+        title: Text(AppLocalizations.of(context).titleAccount),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -58,7 +59,7 @@ class ProfileScreen extends StatelessWidget {
           // --- Các tùy chọn ---
           _ProfileOption(
             icon: Icons.info_outline,
-            label: 'Giới thiệu cá nhân',
+            label: AppLocalizations.of(context).menuAbout,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const GioiThieuScreen()),
@@ -66,7 +67,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           _ProfileOption(
             icon: Icons.person_outline,
-            label: 'Thông tin tài khoản',
+            label: AppLocalizations.of(context).menuAccountInfo,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ThongTinTkScreen()),
@@ -74,7 +75,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           _ProfileOption(
             icon: Icons.lock_outline,
-            label: 'Đổi mật khẩu',
+            label: AppLocalizations.of(context).menuChangePassword,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const DoiMatKhauScreen()),
@@ -82,7 +83,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           _ProfileOption(
             icon: Icons.language_rounded,
-            label: 'Ngôn ngữ',
+            label: AppLocalizations.of(context).menuLanguage,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const NgonNguScreen()),
@@ -90,7 +91,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           _ProfileOption(
             icon: Icons.privacy_tip_outlined,
-            label: 'Chính sách bảo mật',
+            label: AppLocalizations.of(context).menuPrivacy,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ChinhSachScreen()),
@@ -98,20 +99,22 @@ class ProfileScreen extends StatelessWidget {
           ),
           _ProfileOption(
             icon: Icons.logout_rounded,
-            label: 'Đăng xuất',
+            label: AppLocalizations.of(context).menuLogout,
             color: Colors.red,
             onTap: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Đã đăng xuất')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(AppLocalizations.of(context).menuLogout),
+                ),
+              );
             },
           ),
 
           const SizedBox(height: 20),
-          const Center(
+          Center(
             child: Text(
-              'Phiên bản: 1.0.0',
-              style: TextStyle(color: Colors.grey),
+              AppLocalizations.of(context).versionLabel('1.0.0'),
+              style: const TextStyle(color: Colors.grey),
             ),
           ),
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
 import '../../services/firestore_service.dart';
 
 class CreateTopicScreen extends StatefulWidget {
@@ -50,7 +51,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   Future<void> _saveTopic() async {
     if (_topicCtrl.text.isEmpty || _questions.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nhập tên chủ đề và ít nhất 1 câu hỏi.')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).enterTopicAndOneQuestion),
+        ),
       );
       return;
     }
@@ -71,14 +74,20 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã lưu chủ đề và câu hỏi!')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).savedTopicAndQuestions),
+        ),
       );
 
-      Navigator.pop(context, true); // ✅ Trở về trang QuizHomeScreen
+      Navigator.pop(context, true);
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Lỗi khi lưu: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context).errorSavingWithMessage('$e'),
+          ),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -90,7 +99,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
-        title: const Text('Tạo chủ đề & câu hỏi'),
+        title: Text(AppLocalizations.of(context).addTopicAndQuestionsTitle),
         centerTitle: true,
         backgroundColor: primary,
         foregroundColor: Colors.white,
@@ -111,9 +120,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Thông tin chủ đề',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context).topicInfo,
+                      style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 16,
                       ),
@@ -121,11 +130,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                     const SizedBox(height: 10),
                     TextField(
                       controller: _topicCtrl,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.folder_outlined),
-                        labelText: 'Tên chủ đề',
-                        hintText: 'VD: Lập trình Dart cơ bản',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.folder_outlined),
+                        labelText: AppLocalizations.of(context).topicNameLabel,
+                        hintText: AppLocalizations.of(context).topicNameHint,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ],
@@ -152,9 +161,9 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Câu hỏi đã thêm',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context).addedQuestionsTitle,
+                        style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
                         ),
@@ -272,7 +281,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                         ),
                       )
                     : const Icon(Icons.save_rounded),
-                label: Text(_saving ? 'Đang lưu...' : 'Lưu chủ đề'),
+                label: Text(
+                  _saving
+                      ? AppLocalizations.of(context).savingEllipsis
+                      : AppLocalizations.of(context).saveTopic,
+                ),
                 style: FilledButton.styleFrom(
                   backgroundColor: primary,
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -298,19 +311,19 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Soạn câu hỏi',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+            Text(
+              AppLocalizations.of(context).composeQuestionTitle,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: _qCtrl,
               maxLines: null,
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.help_outline),
-                labelText: 'Nội dung câu hỏi',
-                hintText: 'Nhập câu hỏi...',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.help_outline),
+                labelText: AppLocalizations.of(context).questionContent,
+                hintText: AppLocalizations.of(context).enterQuestion,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
@@ -352,14 +365,16 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       child: TextField(
                         controller: _opts[i],
                         decoration: InputDecoration(
-                          hintText: 'Đáp án $label',
+                          hintText: AppLocalizations.of(
+                            context,
+                          ).answerHint(label),
                           border: InputBorder.none,
                         ),
                       ),
                     ),
                     ChoiceChip(
                       selected: isCorrect,
-                      label: const Text('Đúng'),
+                      label: Text(AppLocalizations.of(context).correctAnswer),
                       selectedColor: primary.withValues(alpha: .15),
                       labelStyle: TextStyle(
                         color: isCorrect ? primary : Colors.black87,
@@ -376,7 +391,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
               child: FilledButton.icon(
                 onPressed: _addQuestion,
                 icon: const Icon(Icons.add_rounded),
-                label: const Text('Thêm câu hỏi'),
+                label: Text(AppLocalizations.of(context).addQuestionTitle),
                 style: FilledButton.styleFrom(
                   backgroundColor: primary,
                   padding: const EdgeInsets.symmetric(

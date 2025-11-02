@@ -5,6 +5,7 @@ import '../../models/flashcard.dart';
 import '../../services/firestore_service.dart';
 import 'add_tu.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
 
 class FlashcardTopicScreen extends StatefulWidget {
   const FlashcardTopicScreen({super.key, required this.topic});
@@ -209,7 +210,7 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                     // 🎤 Nút phát âm
                     _BottomControl(
                       icon: Icons.volume_up_rounded,
-                      label: 'Phát âm',
+                      label: AppLocalizations.of(context).flashSpeak,
                       onTap: () async {
                         final textToSpeak = _front ? card.front : card.back;
                         await _tts.speak(textToSpeak);
@@ -218,7 +219,7 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                     // 🎨 Đổi màu thẻ
                     _BottomControl(
                       icon: Icons.color_lens_rounded,
-                      label: 'Màu',
+                      label: AppLocalizations.of(context).flashColor,
                       onTap: () async {
                         final color = await showDialog<Color>(
                           context: context,
@@ -231,7 +232,7 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                     // ✏️ Chỉnh sửa thẻ
                     _BottomControl(
                       icon: Icons.edit_rounded,
-                      label: 'Chỉnh sửa',
+                      label: AppLocalizations.of(context).flashEdit,
                       onTap: () async {
                         await Navigator.push(
                           context,
@@ -245,7 +246,9 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                     // 🔁 Tự động đọc và lật
                     _BottomControl(
                       icon: Icons.autorenew_rounded,
-                      label: _autoMode ? 'Dừng' : 'Tự động',
+                      label: _autoMode
+                          ? AppLocalizations.of(context).flashStop
+                          : AppLocalizations.of(context).flashAuto,
                       onTap: () => _toggleAuto(cards),
                     ),
                   ],
@@ -261,7 +264,7 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                       child: OutlinedButton.icon(
                         onPressed: _index == 0 ? null : _prev,
                         icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                        label: const Text('Trước'),
+                        label: Text(AppLocalizations.of(context).flashPrev),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -271,7 +274,7 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                             ? null
                             : () => _next(cards.length),
                         icon: const Icon(Icons.arrow_forward_ios_rounded),
-                        label: const Text('Sau'),
+                        label: Text(AppLocalizations.of(context).flashNext),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF6C4CE3),
                           foregroundColor: Colors.white,
@@ -295,7 +298,7 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
         const Icon(Icons.layers_outlined, color: Colors.grey, size: 48),
         const SizedBox(height: 10),
         Text(
-          'Không có thẻ nào để hiển thị.\nVui lòng thêm thẻ mới.',
+          AppLocalizations.of(context).flashEmptyCards,
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.grey.shade700),
         ),
@@ -312,7 +315,7 @@ class _ColorPickerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Chọn màu nền thẻ'),
+      title: Text(AppLocalizations.of(context).colorPickerTitle),
       content: Wrap(
         spacing: 10,
         runSpacing: 10,

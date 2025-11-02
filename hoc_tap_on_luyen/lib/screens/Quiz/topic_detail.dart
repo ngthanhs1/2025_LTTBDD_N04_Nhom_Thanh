@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../models/quiz.dart';
 import '../../services/firestore_service.dart';
 import 'add_question.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
 
 class TopicDetailScreen extends StatelessWidget {
   final Topic topic;
@@ -14,13 +15,13 @@ class TopicDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
-        title: Text('Chủ đề: ${topic.name}'),
+        title: Text(AppLocalizations.of(context).topicDetailTitle(topic.name)),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 193, 177, 248),
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            tooltip: 'Thêm câu hỏi',
+            tooltip: AppLocalizations.of(context).tooltipAddQuestion,
             icon: const Icon(Icons.add_circle_outline),
             onPressed: () async {
               await Navigator.push(
@@ -37,7 +38,9 @@ class TopicDetailScreen extends StatelessWidget {
         stream: FirestoreService.instance.streamQuestions(topic.id),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text('Lỗi tải dữ liệu câu hỏi.'));
+            return Center(
+              child: Text(AppLocalizations.of(context).errorLoadingQuestions),
+            );
           }
 
           final questions = snapshot.data ?? [];
@@ -69,7 +72,7 @@ class TopicDetailScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Tạo: ${DateFormat('yyyy-MM-dd HH:mm').format(topic.createdAt)}',
+                              '${AppLocalizations.of(context).labelCreatedAt}: ${DateFormat('yyyy-MM-dd HH:mm').format(topic.createdAt)}',
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
@@ -88,7 +91,9 @@ class TopicDetailScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          '${questions.length} câu hỏi',
+                          AppLocalizations.of(
+                            context,
+                          ).labelQuestionsCount(questions.length),
                           style: const TextStyle(
                             color: primary,
                             fontWeight: FontWeight.w600,
@@ -106,10 +111,10 @@ class TopicDetailScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 40),
                   alignment: Alignment.center,
-                  child: const Text(
-                    'Chưa có câu hỏi nào trong chủ đề này.\nNhấn + để thêm mới!',
+                  child: Text(
+                    AppLocalizations.of(context).topicEmpty,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey),
+                    style: const TextStyle(color: Colors.grey),
                   ),
                 )
               else

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
 import 'login.dart';
 
 class IntroScreen extends StatelessWidget {
@@ -26,9 +27,9 @@ class IntroScreen extends StatelessWidget {
               size: 90,
             ),
             const SizedBox(height: 30),
-            const Text(
-              "Học tập & Ôn luyện từ vựng",
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context).introTitle,
+              style: const TextStyle(
                 color: Color(0xFF3F51B5),
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -54,9 +55,12 @@ class IntroScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                "Bắt đầu học",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              child: Text(
+                AppLocalizations.of(context).introStart,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],

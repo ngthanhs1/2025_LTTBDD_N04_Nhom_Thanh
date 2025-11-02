@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
 import '../../services/firestore_service.dart';
 
 class AddChuDeDialog extends StatefulWidget {
@@ -15,9 +16,11 @@ class _AddChuDeDialogState extends State<AddChuDeDialog> {
   Future<void> _save() async {
     final name = _ctrl.text.trim();
     if (name.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Nhập tên thư mục')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).flashFolderNameRequired),
+        ),
+      );
       return;
     }
     setState(() => _saving = true);
@@ -26,9 +29,13 @@ class _AddChuDeDialogState extends State<AddChuDeDialog> {
       if (mounted) Navigator.pop(context, true); // báo thành công
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context).errorSavingWithMessage('$e'),
+            ),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -44,19 +51,18 @@ class _AddChuDeDialogState extends State<AddChuDeDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Tạo thư mục mới',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+            Text(
+              AppLocalizations.of(context).flashNewFolderTitle,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _ctrl,
               autofocus: true,
               decoration: InputDecoration(
-                hintText: 'Tên thư mục mới',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                labelText: AppLocalizations.of(context).flashFolderNameHint,
+                hintText: AppLocalizations.of(context).flashFolderNameHint,
+                border: const OutlineInputBorder(),
               ),
               onSubmitted: (_) => _save(),
             ),
@@ -66,7 +72,7 @@ class _AddChuDeDialogState extends State<AddChuDeDialog> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: _saving ? null : () => Navigator.pop(context),
-                    child: const Text('Hủy'),
+                    child: Text(AppLocalizations.of(context).actionCancel),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -80,7 +86,9 @@ class _AddChuDeDialogState extends State<AddChuDeDialog> {
                             height: 16,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Tạo thư mục'),
+                        : Text(
+                            AppLocalizations.of(context).flashNewFolderTitle,
+                          ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF6C4CE3),
                       foregroundColor: Colors.white,

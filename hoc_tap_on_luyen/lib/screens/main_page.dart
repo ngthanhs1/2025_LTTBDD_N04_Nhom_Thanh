@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'trangchu/home.dart';
 import 'Quiz/quiz_home.dart';
-import '../models/flashcard.dart';
 import 'Flashcard/flashcard_home.dart';
 import 'Taikhoan/profile.dart';
 import 'trangchu/thongke.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -39,30 +39,30 @@ class _MainPageState extends State<MainPage> {
           unselectedItemColor: Colors.grey,
           showUnselectedLabels: true,
           onTap: (i) => setState(() => _index = i),
-          items: const [
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Trang chủ',
+              icon: const Icon(Icons.home_outlined),
+              activeIcon: const Icon(Icons.home),
+              label: AppLocalizations.of(context).tabHome,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.quiz_outlined),
-              activeIcon: Icon(Icons.quiz),
-              label: 'Câu đố',
+              icon: const Icon(Icons.quiz_outlined),
+              activeIcon: const Icon(Icons.quiz),
+              label: AppLocalizations.of(context).tabQuiz,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.menu_book_outlined),
-              activeIcon: Icon(Icons.menu_book),
-              label: 'Thẻ ghi nhớ',
+              icon: const Icon(Icons.menu_book_outlined),
+              activeIcon: const Icon(Icons.menu_book),
+              label: AppLocalizations.of(context).tabFlashcard,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart_rounded),
-              label: 'Thống kê',
+              icon: const Icon(Icons.bar_chart_rounded),
+              label: AppLocalizations.of(context).tabStats,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Tài khoản',
+              icon: const Icon(Icons.person_outline),
+              activeIcon: const Icon(Icons.person),
+              label: AppLocalizations.of(context).tabAccount,
             ),
           ],
         ),

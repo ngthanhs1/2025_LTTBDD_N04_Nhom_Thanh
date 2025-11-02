@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'screens/intro.dart';
 import 'screens/main_page.dart';
+import 'services/locale_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const HocTapOnLuyenApp());
+  final localeProvider = LocaleProvider();
+  await localeProvider.loadSaved();
+  runApp(
+    ChangeNotifierProvider.value(
+      value: localeProvider,
+      child: const HocTapOnLuyenApp(),
+    ),
+  );
 }
 
 class HocTapOnLuyenApp extends StatelessWidget {
@@ -17,8 +27,11 @@ class HocTapOnLuyenApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Học tập & Ôn luyện',
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
+      locale: context.watch<LocaleProvider>().locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
