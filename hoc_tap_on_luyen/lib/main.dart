@@ -43,7 +43,7 @@ class HocTapOnLuyenApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.grey[50],
         textSelectionTheme: const TextSelectionThemeData(
           cursorColor: Color(0xFF3B82F6),
-          selectionColor: Color(0x553B82F6), // 33% opacity
+          selectionColor: Color(0x553B82F6),
           selectionHandleColor: Color(0xFF3B82F6),
         ),
         inputDecorationTheme: InputDecorationTheme(

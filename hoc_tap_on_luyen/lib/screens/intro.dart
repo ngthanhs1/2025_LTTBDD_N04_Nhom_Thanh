@@ -23,7 +23,7 @@ class IntroScreen extends StatelessWidget {
           children: [
             const Icon(
               Icons.school_rounded,
-              color: Color(0xFF3F51B5),
+              color: Color.fromARGB(255, 179, 186, 223),
               size: 90,
             ),
             const SizedBox(height: 30),
