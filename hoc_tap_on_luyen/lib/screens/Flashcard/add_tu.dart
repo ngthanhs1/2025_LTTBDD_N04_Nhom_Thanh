@@ -85,7 +85,7 @@ class _AddTuScreenState extends State<AddTuScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF6C4CE3),
+        backgroundColor: const Color.fromARGB(255, 224, 223, 226),
         title: Text(
           _isEditing
               ? AppLocalizations.of(context).addWordTitleEdit

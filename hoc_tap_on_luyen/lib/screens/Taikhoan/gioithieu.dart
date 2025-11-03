@@ -29,6 +29,12 @@ class GioiThieuScreen extends StatelessWidget {
                   ),
                   Divider(height: 1),
                   _InfoTile(
+                    icon: Icons.menu_book_outlined,
+                    label: 'Nhóm',
+                    value: '2025_LTTBDD_N04_Nhom_Thanh',
+                  ),
+                  Divider(height: 1),
+                  _InfoTile(
                     icon: Icons.school_outlined,
                     label: 'Lớp',
                     value: 'N04',
@@ -62,7 +68,7 @@ class GioiThieuScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Ứng dụng học từ vựng giúp sinh viên luyện tập dễ dàng hơn.',
+                    'Mục đích tạo ra ứng dụng này để mọi người dễ dàng tiếp cận và sử dụng các chức năng cơ bản dễ dàng..',
                     style: TextStyle(fontSize: 14, height: 1.4),
                   ),
                 ],

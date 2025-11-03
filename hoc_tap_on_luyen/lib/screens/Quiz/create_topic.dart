@@ -95,14 +95,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const primary = Color(0xFF6C4CE3);
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
         title: Text(AppLocalizations.of(context).addTopicAndQuestionsTitle),
         centerTitle: true,
-        backgroundColor: primary,
-        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -275,10 +272,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                     ? const SizedBox(
                         width: 18,
                         height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.save_rounded),
                 label: Text(
@@ -286,15 +280,11 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                       ? AppLocalizations.of(context).savingEllipsis
                       : AppLocalizations.of(context).saveTopic,
                 ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: primary,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
               ),
             ),
+            // end of SizedBox
+
+            // Close Column children and widgets
           ],
         ),
       ),
@@ -302,7 +292,7 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
   }
 
   Widget _buildQuestionComposer() {
-    const primary = Color(0xFF6C4CE3);
+    final primary = Theme.of(context).colorScheme.primary;
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -330,58 +320,64 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
             ...List.generate(4, (i) {
               final label = String.fromCharCode(65 + i);
               final isCorrect = _correct == i;
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isCorrect
-                        ? primary.withValues(alpha: .5)
-                        : Colors.grey.shade300,
+              return InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => setState(() => _correct = i),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
                   ),
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 14,
-                      backgroundColor: isCorrect
-                          ? primary.withValues(alpha: .15)
-                          : Colors.grey.shade200,
-                      child: Text(
-                        label,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: isCorrect ? primary : Colors.grey.shade700,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isCorrect
+                          ? primary.withValues(alpha: .5)
+                          : Colors.grey.shade300,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 14,
+                        backgroundColor: isCorrect
+                            ? primary.withValues(alpha: .15)
+                            : Colors.grey.shade200,
+                        child: Text(
+                          label,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: isCorrect ? primary : Colors.grey.shade700,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        controller: _opts[i],
-                        decoration: InputDecoration(
-                          hintText: AppLocalizations.of(
-                            context,
-                          ).answerHint(label),
-                          border: InputBorder.none,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          controller: _opts[i],
+                          decoration: InputDecoration(
+                            hintText: AppLocalizations.of(
+                              context,
+                            ).answerHint(label),
+                            border: InputBorder.none,
+                          ),
                         ),
                       ),
-                    ),
-                    ChoiceChip(
-                      selected: isCorrect,
-                      label: Text(AppLocalizations.of(context).correctAnswer),
-                      selectedColor: primary.withValues(alpha: .15),
-                      labelStyle: TextStyle(
-                        color: isCorrect ? primary : Colors.black87,
+                      // Fixed-width trailing icon space to avoid layout shift
+                      SizedBox(
+                        width: 28,
+                        child: Icon(
+                          isCorrect
+                              ? Icons.check_circle
+                              : Icons.radio_button_unchecked,
+                          color: isCorrect ? primary : Colors.grey.shade400,
+                          size: 22,
+                        ),
                       ),
-                      onSelected: (_) => setState(() => _correct = i),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             }),
@@ -392,16 +388,6 @@ class _CreateTopicScreenState extends State<CreateTopicScreen> {
                 onPressed: _addQuestion,
                 icon: const Icon(Icons.add_rounded),
                 label: Text(AppLocalizations.of(context).addQuestionTitle),
-                style: FilledButton.styleFrom(
-                  backgroundColor: primary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
               ),
             ),
           ],

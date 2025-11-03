@@ -35,16 +35,15 @@ class HocTapOnLuyenApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(
-            0xFF3B82F6,
-          ), // consistent blue (no pink/purple)
+          // Neutral gray seed to remove blue accents
+          seedColor: const Color(0xFF9CA3AF), // gray-400
           brightness: Brightness.light,
         ),
         scaffoldBackgroundColor: Colors.grey[50],
         textSelectionTheme: const TextSelectionThemeData(
-          cursorColor: Color(0xFF3B82F6),
-          selectionColor: Color(0x553B82F6),
-          selectionHandleColor: Color(0xFF3B82F6),
+          cursorColor: Color(0xFF9CA3AF),
+          selectionColor: Color(0x339CA3AF),
+          selectionHandleColor: Color(0xFF9CA3AF),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
@@ -56,7 +55,7 @@ class HocTapOnLuyenApp extends StatelessWidget {
           ),
           focusedBorder: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(12)),
-            borderSide: BorderSide(color: Color(0xFF3B82F6), width: 1.6),
+            borderSide: BorderSide(color: Color(0xFF9CA3AF), width: 1.4),
           ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
@@ -66,12 +65,23 @@ class HocTapOnLuyenApp extends StatelessWidget {
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black87,
+            surfaceTintColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            side: BorderSide(color: Colors.grey.shade300),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
-        appBarTheme: const AppBarTheme(centerTitle: true),
+        appBarTheme: const AppBarTheme(
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black87,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+        ),
       ),
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),

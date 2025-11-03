@@ -18,54 +18,98 @@ class TakeQuizScreen extends StatefulWidget {
 }
 
 class _TakeQuizScreenState extends State<TakeQuizScreen> {
-  int currentIndex = 0;
-  int correctAnswers = 0;
+  late final List<int?> _selected;
 
-  void _answerQuestion(int selectedIndex) {
-    if (widget.questions[currentIndex].correctIndex == selectedIndex) {
-      correctAnswers++;
-    }
+  @override
+  void initState() {
+    super.initState();
+    _selected = List<int?>.filled(widget.questions.length, null);
+  }
 
-    if (currentIndex < widget.questions.length - 1) {
-      setState(() => currentIndex++);
-    } else {
-      final total = widget.questions.length;
-      final wrong = (total - correctAnswers).clamp(0, total);
-      FirestoreService.instance.addQuizSession(
-        topicId: widget.topic.id,
-        topicName: widget.topic.name,
-        total: total,
-        correct: correctAnswers,
-        wrong: wrong,
-      );
+  Future<void> _submit() async {
+    final total = widget.questions.length;
+    final correct = List.generate(total, (i) {
+      final sel = _selected[i];
+      return sel != null && sel == widget.questions[i].correctIndex ? 1 : 0;
+    }).fold<int>(0, (a, b) => a + b);
+    final wrong = (total - correct).clamp(0, total);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => QuizResultScreen(
-            total: widget.questions.length,
-            correct: correctAnswers,
-            topicName: widget.topic.name,
-          ),
+    await FirestoreService.instance.addQuizSession(
+      topicId: widget.topic.id,
+      topicName: widget.topic.name,
+      total: total,
+      correct: correct,
+      wrong: wrong,
+    );
+
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => QuizResultScreen(
+          total: total,
+          correct: correct,
+          topicName: widget.topic.name,
         ),
-      );
-    }
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final q = widget.questions[currentIndex];
-
-    const primary = Color(0xFF6C4CE3);
-    final progress = (currentIndex + 1) / widget.questions.length;
+    final primary = Theme.of(context).colorScheme.primary;
+    final answered = _selected.where((e) => e != null).length;
+    final progress = widget.questions.isEmpty
+        ? 0.0
+        : answered / widget.questions.length;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
-        backgroundColor: primary,
-        foregroundColor: Colors.white,
         title: Text(widget.topic.name),
         centerTitle: true,
+        actions: [
+          TextButton.icon(
+            onPressed: () async {
+              final ok = await showDialog<bool>(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text('Nộp bài?'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Bạn đã chọn $answered/${widget.questions.length} câu. Xác nhận nộp bài?',
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Nộp bài'),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Hủy'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+              if (ok == true) {
+                await _submit();
+              }
+            },
+            icon: const Icon(Icons.send_rounded, color: Colors.white),
+            label: const Text('Nộp bài', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -76,7 +120,7 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
             Row(
               children: [
                 Text(
-                  'Câu ${currentIndex + 1}/${widget.questions.length}',
+                  'Đã chọn: $answered/${widget.questions.length}',
                   style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 const SizedBox(width: 12),
@@ -95,77 +139,112 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
             ),
 
             const SizedBox(height: 14),
-
-            // Question
-            Card(
-              elevation: 1,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  q.text,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+            // All questions list
+            Expanded(
+              child: ListView.separated(
+                itemCount: widget.questions.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final q = widget.questions[index];
+                  return Card(
+                    elevation: 1,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 14,
+                                backgroundColor: primary.withValues(alpha: .1),
+                                child: Text(
+                                  '${index + 1}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: primary,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  q.text,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          ...List.generate(q.options.length, (i) {
+                            final label = String.fromCharCode(65 + i);
+                            final selected = _selected[index] == i;
+                            return InkWell(
+                              onTap: () => setState(() => _selected[index] = i),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: selected
+                                        ? primary.withValues(alpha: .6)
+                                        : Colors.grey.shade300,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 14,
+                                      backgroundColor: selected
+                                          ? primary.withValues(alpha: .15)
+                                          : Colors.grey.shade200,
+                                      child: Text(
+                                        label,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: selected
+                                              ? primary
+                                              : Colors.grey.shade700,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(child: Text(q.options[i])),
+                                    SizedBox(
+                                      width: 26,
+                                      child: Icon(
+                                        selected
+                                            ? Icons.check_circle
+                                            : Icons.radio_button_unchecked,
+                                        color: selected
+                                            ? primary
+                                            : Colors.grey.shade400,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
-
-            const SizedBox(height: 14),
-
-            // Options
-            ...List.generate(q.options.length, (i) {
-              final label = String.fromCharCode(65 + i);
-              return InkWell(
-                onTap: () => _answerQuestion(i),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 12,
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 16,
-                          backgroundColor: primary.withValues(alpha: .1),
-                          child: Text(
-                            label,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: primary,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            q.options[i],
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
           ],
         ),
       ),

@@ -11,13 +11,13 @@ class TopicDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const primary = Color.fromARGB(255, 202, 191, 243);
+    const primary = Color.fromARGB(255, 90, 94, 100);
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
         title: Text(AppLocalizations.of(context).topicDetailTitle(topic.name)),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 193, 177, 248),
+        backgroundColor: const Color.fromARGB(255, 126, 129, 129),
         foregroundColor: Colors.white,
         actions: [
           IconButton(
@@ -47,7 +47,6 @@ class TopicDetailScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              // Header card
               Card(
                 elevation: 1,
                 shape: RoundedRectangleBorder(

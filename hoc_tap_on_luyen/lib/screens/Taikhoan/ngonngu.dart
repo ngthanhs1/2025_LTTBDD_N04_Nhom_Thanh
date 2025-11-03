@@ -52,7 +52,7 @@ class _NgonNguScreenState extends State<NgonNguScreen> {
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6C4CE3),
+              backgroundColor: const Color.fromARGB(255, 238, 237, 240),
               minimumSize: const Size(200, 45),
             ),
             child: Text(AppLocalizations.of(context).actionSave),

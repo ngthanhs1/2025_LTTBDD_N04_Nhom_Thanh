@@ -111,7 +111,7 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF6C4CE3),
+        backgroundColor: const Color.fromARGB(255, 170, 170, 172),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
@@ -207,7 +207,6 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    // 🎤 Nút phát âm
                     _BottomControl(
                       icon: Icons.volume_up_rounded,
                       label: AppLocalizations.of(context).flashSpeak,
@@ -216,7 +215,6 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                         await _tts.speak(textToSpeak);
                       },
                     ),
-                    // 🎨 Đổi màu thẻ
                     _BottomControl(
                       icon: Icons.color_lens_rounded,
                       label: AppLocalizations.of(context).flashColor,
@@ -229,7 +227,6 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                         if (color != null) setState(() => _cardColor = color);
                       },
                     ),
-                    // ✏️ Chỉnh sửa thẻ
                     _BottomControl(
                       icon: Icons.edit_rounded,
                       label: AppLocalizations.of(context).flashEdit,
@@ -243,7 +240,6 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                         );
                       },
                     ),
-                    // 🔁 Tự động đọc và lật
                     _BottomControl(
                       icon: Icons.autorenew_rounded,
                       label: _autoMode
@@ -255,7 +251,6 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                 ),
               ),
 
-              // --- Điều hướng trước/sau ---
               Padding(
                 padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
                 child: Row(
@@ -276,7 +271,12 @@ class _FlashcardTopicScreenState extends State<FlashcardTopicScreen>
                         icon: const Icon(Icons.arrow_forward_ios_rounded),
                         label: Text(AppLocalizations.of(context).flashNext),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6C4CE3),
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            221,
+                            216,
+                            240,
+                          ),
                           foregroundColor: Colors.white,
                         ),
                       ),
