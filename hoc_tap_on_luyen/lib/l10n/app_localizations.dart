@@ -896,6 +896,24 @@ abstract class AppLocalizations {
   /// **'Question {current}/{total}'**
   String quizQuestionProgress(Object current, Object total);
 
+  /// No description provided for @quizSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get quizSubmit;
+
+  /// No description provided for @quizSubmitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit?'**
+  String get quizSubmitTitle;
+
+  /// No description provided for @quizSubmitConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'You selected {answered}/{total}. Submit now?'**
+  String quizSubmitConfirm(Object answered, Object total);
+
   /// No description provided for @flashEmptyCards.
   ///
   /// In en, this message translates to:

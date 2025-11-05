@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/quiz.dart';
 import '../../services/firestore_service.dart';
 import 'result_screen.dart';
+import 'package:hoc_tap_on_luyen/l10n/app_localizations.dart';
 
 class TakeQuizScreen extends StatefulWidget {
   final Topic topic;
@@ -74,20 +75,22 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
               final ok = await showDialog<bool>(
                 context: context,
                 builder: (_) => AlertDialog(
-                  title: const Text('Nộp bài?'),
+                  title: Text(AppLocalizations.of(context).quizSubmitTitle),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        'Bạn đã chọn $answered/${widget.questions.length} câu. Xác nhận nộp bài?',
+                        AppLocalizations.of(
+                          context,
+                        ).quizSubmitConfirm(answered, widget.questions.length),
                       ),
                       const SizedBox(height: 12),
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Nộp bài'),
+                          child: Text(AppLocalizations.of(context).quizSubmit),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -95,7 +98,9 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
                         width: double.infinity,
                         child: OutlinedButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Hủy'),
+                          child: Text(
+                            AppLocalizations.of(context).actionCancel,
+                          ),
                         ),
                       ),
                     ],
@@ -106,8 +111,20 @@ class _TakeQuizScreenState extends State<TakeQuizScreen> {
                 await _submit();
               }
             },
-            icon: const Icon(Icons.send_rounded, color: Colors.white),
-            label: const Text('Nộp bài', style: TextStyle(color: Colors.white)),
+            icon: Icon(
+              Icons.send_rounded,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            label: Text(
+              AppLocalizations.of(context).quizSubmit,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ],
       ),

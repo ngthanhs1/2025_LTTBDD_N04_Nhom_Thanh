@@ -433,6 +433,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get quizSubmit => 'Submit';
+
+  @override
+  String get quizSubmitTitle => 'Submit?';
+
+  @override
+  String quizSubmitConfirm(Object answered, Object total) {
+    return 'You selected $answered/$total. Submit now?';
+  }
+
+  @override
   String get flashEmptyCards => 'No cards to display.\nPlease add new cards.';
 
   @override

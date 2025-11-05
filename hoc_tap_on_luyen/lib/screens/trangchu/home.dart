@@ -303,8 +303,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final flashDone = (flashSummary['done'] ?? 0) as int;
     final flashAccuracy = (flashSummary['accuracy'] ?? 0) as int;
 
+    final now = DateTime.now();
+    final todayIndex = now.day - 1;
+    final todayCount = (todayIndex >= 0 && todayIndex < dailyUsage.length)
+        ? dailyUsage[todayIndex]
+        : 0;
+    final studyTimeTodayMinutes = todayCount * 2;
+
     _cachedStats = {
-      'studyTime': (quizDone + flashDone) * 2, // ước lượng: 2 phút mỗi phiên
+      'studyTime': studyTimeTodayMinutes,
       'quizDone': quizDone,
       'avgScore': avgScore,
       'quizTopics': quizTopics,
@@ -414,8 +421,10 @@ class _UsageChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final days = List.generate(dailyUsage.length, (i) => i + 1);
-    final maxValue = dailyUsage.isEmpty ? 0 : dailyUsage.reduce(max).toDouble();
+    // Quy đổi phiên -> phút học (ước lượng 2 phút / phiên)
+    final minutes = dailyUsage.map((c) => c * 2).toList();
+    final days = List.generate(minutes.length, (i) => i + 1);
+    final maxValue = minutes.isEmpty ? 0 : minutes.reduce(max).toDouble();
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -470,7 +479,7 @@ class _UsageChartCard extends StatelessWidget {
                         x: d,
                         barRods: [
                           BarChartRodData(
-                            toY: dailyUsage[d - 1].toDouble(),
+                            toY: minutes[d - 1].toDouble(),
                             color: Colors.indigo,
                             width: 6,
                             borderRadius: BorderRadius.circular(4),

@@ -146,6 +146,9 @@
 		"quizResultAccuracy": "Tỷ lệ chính xác: {percent}%",
 		"quizBackHome": "Về trang chủ",
 		"quizQuestionProgress": "Câu {current}/{total}",
+		"quizSubmit": "Nộp bài",
+		"quizSubmitTitle": "Nộp bài?",
+		"quizSubmitConfirm": "Bạn đã chọn {answered}/{total} câu. Xác nhận nộp bài?",
 
 		"flashEmptyCards": "Không có thẻ nào để hiển thị.\nVui lòng thêm thẻ mới.",
 

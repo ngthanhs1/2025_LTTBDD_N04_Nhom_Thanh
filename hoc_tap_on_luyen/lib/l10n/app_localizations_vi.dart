@@ -435,6 +435,17 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String get quizSubmit => 'Nộp bài';
+
+  @override
+  String get quizSubmitTitle => 'Nộp bài?';
+
+  @override
+  String quizSubmitConfirm(Object answered, Object total) {
+    return 'Bạn đã chọn $answered/$total câu. Xác nhận nộp bài?';
+  }
+
+  @override
   String get flashEmptyCards =>
       'Không có thẻ nào để hiển thị.\nVui lòng thêm thẻ mới.';
 

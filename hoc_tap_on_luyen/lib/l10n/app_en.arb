@@ -146,6 +146,9 @@
 		"quizResultAccuracy": "Accuracy: {percent}%",
 		"quizBackHome": "Back to home",
 		"quizQuestionProgress": "Question {current}/{total}",
+		"quizSubmit": "Submit",
+		"quizSubmitTitle": "Submit?",
+		"quizSubmitConfirm": "You selected {answered}/{total}. Submit now?",
 
 		"flashEmptyCards": "No cards to display.\nPlease add new cards.",
 
