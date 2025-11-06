@@ -11,14 +11,13 @@ class TopicDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const primary = Color.fromARGB(255, 90, 94, 100);
+    final primary = Theme.of(context).colorScheme.primary;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
         title: Text(AppLocalizations.of(context).topicDetailTitle(topic.name)),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 126, 129, 129),
-        foregroundColor: Colors.white,
+        // Use default themed AppBar; keep icons readable
         actions: [
           IconButton(
             tooltip: AppLocalizations.of(context).tooltipAddQuestion,
@@ -56,7 +55,7 @@ class TopicDetailScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(14),
                   child: Row(
                     children: [
-                      const Icon(Icons.folder_open_rounded, color: primary),
+                      Icon(Icons.folder_open_rounded, color: primary),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Column(
@@ -93,7 +92,7 @@ class TopicDetailScreen extends StatelessWidget {
                           AppLocalizations.of(
                             context,
                           ).labelQuestionsCount(questions.length),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: primary,
                             fontWeight: FontWeight.w600,
                           ),
@@ -145,7 +144,7 @@ class TopicDetailScreen extends StatelessWidget {
                                 backgroundColor: primary.withValues(alpha: .12),
                                 child: Text(
                                   '${i + 1}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: primary,
                                   ),
@@ -160,6 +159,97 @@ class TopicDetailScreen extends StatelessWidget {
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
+                              ),
+                              PopupMenuButton<String>(
+                                onSelected: (value) async {
+                                  if (value == 'edit') {
+                                    await _showEditQuestionSheet(
+                                      context: context,
+                                      topicId: topic.id,
+                                      question: q,
+                                    );
+                                  } else if (value == 'delete') {
+                                    final ok = await showDialog<bool>(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        title: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          ).actionDelete,
+                                        ),
+                                        content: Text('Xóa câu hỏi này?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, false),
+                                            child: Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              ).actionCancel,
+                                            ),
+                                          ),
+                                          FilledButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, true),
+                                            child: Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              ).actionDelete,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (ok == true) {
+                                      await FirestoreService.instance
+                                          .deleteQuestion(
+                                            topicId: topic.id,
+                                            questionId: q.id,
+                                          );
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              ).quizDeleted,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  }
+                                },
+                                itemBuilder: (ctx) => [
+                                  PopupMenuItem(
+                                    value: 'edit',
+                                    child: ListTile(
+                                      leading: const Icon(Icons.edit_outlined),
+                                      title: Text(
+                                        AppLocalizations.of(context).actionSave,
+                                      ),
+                                    ),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'delete',
+                                    child: ListTile(
+                                      leading: const Icon(
+                                        Icons.delete_outline,
+                                        color: Colors.red,
+                                      ),
+                                      title: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        ).actionDelete,
+                                        style: const TextStyle(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -233,4 +323,182 @@ class TopicDetailScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> _showEditQuestionSheet({
+  required BuildContext context,
+  required String topicId,
+  required Question question,
+}) async {
+  final primary = Theme.of(context).colorScheme.primary;
+  final ctrQ = TextEditingController(text: question.text);
+  final ctrs = List.generate(
+    4,
+    (i) => TextEditingController(
+      text: i < question.options.length ? question.options[i] : '',
+    ),
+  );
+  int correct = question.correctIndex;
+  bool saving = false;
+
+  await showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    builder: (ctx) {
+      return StatefulBuilder(
+        builder: (ctx, setState) {
+          final bottom = MediaQuery.of(ctx).viewInsets.bottom;
+          return Padding(
+            padding: EdgeInsets.only(bottom: bottom),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Chỉnh sửa câu hỏi',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: ctrQ,
+                    maxLines: null,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.help_outline),
+                      hintText: 'Nhập câu hỏi...',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ...List.generate(4, (i) {
+                    final label = String.fromCharCode(65 + i);
+                    final selected = correct == i;
+                    return InkWell(
+                      onTap: () => setState(() => correct = i),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: selected
+                                ? primary.withValues(alpha: .6)
+                                : Colors.grey.shade300,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundColor: selected
+                                  ? primary.withValues(alpha: .15)
+                                  : Colors.grey.shade200,
+                              child: Text(
+                                label,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: selected
+                                      ? primary
+                                      : Colors.grey.shade700,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: TextField(
+                                controller: ctrs[i],
+                                decoration: InputDecoration(
+                                  hintText: 'Đáp án $label',
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 26,
+                              child: Icon(
+                                selected
+                                    ? Icons.check_circle
+                                    : Icons.radio_button_unchecked,
+                                color: selected
+                                    ? primary
+                                    : Colors.grey.shade400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                  const SizedBox(height: 6),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: saving
+                          ? null
+                          : () async {
+                              final text = ctrQ.text.trim();
+                              final ops = ctrs
+                                  .map((e) => e.text.trim())
+                                  .toList();
+                              if (text.isEmpty || ops.any((e) => e.isEmpty)) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Vui lòng nhập câu hỏi và đủ 4 đáp án.',
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
+                              setState(() => saving = true);
+                              await FirestoreService.instance.updateQuestion(
+                                topicId: topicId,
+                                questionId: question.id,
+                                text: text,
+                                options: ops,
+                                correctIndex: correct,
+                              );
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(context).quizSaved,
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                      icon: saving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.save_rounded),
+                      label: Text(AppLocalizations.of(context).actionSave),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
 }

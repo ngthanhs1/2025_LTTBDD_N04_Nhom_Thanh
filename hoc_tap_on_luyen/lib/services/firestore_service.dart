@@ -72,6 +72,27 @@ class FirestoreService {
     });
   }
 
+  Future<void> updateQuestion({
+    required String topicId,
+    required String questionId,
+    required String text,
+    required List<String> options,
+    required int correctIndex,
+  }) async {
+    await _questionsCol(topicId).doc(questionId).update({
+      'text': text.trim(),
+      'options': options.map((e) => e.trim()).toList(),
+      'correctIndex': correctIndex,
+    });
+  }
+
+  Future<void> deleteQuestion({
+    required String topicId,
+    required String questionId,
+  }) async {
+    await _questionsCol(topicId).doc(questionId).delete();
+  }
+
   Future<List<Question>> getQuestions(String topicId) async {
     final qs = await _questionsCol(topicId).get();
     return qs.docs.map((d) => Question.fromDoc(d.id, d.data())).toList();
@@ -600,6 +621,29 @@ class FirestoreService {
         'topics': topics,
       };
     });
+  }
+
+  /// Thống kê Quiz cho riêng hôm nay: số bài đã làm và điểm trung bình (tỉ lệ đúng %)
+  Future<Map<String, int>> getTodayQuizStats() async {
+    final uid = _auth.currentUser?.uid ?? 'guest';
+    final now = DateTime.now();
+    final startOfToday = DateTime(now.year, now.month, now.day);
+    final startOfTomorrow = startOfToday.add(const Duration(days: 1));
+
+    final qs = await _quizSessions(uid)
+        .where('createdAt', isGreaterThanOrEqualTo: startOfToday)
+        .where('createdAt', isLessThan: startOfTomorrow)
+        .get();
+
+    final done = qs.docs.length;
+    double accSum = 0;
+    for (final d in qs.docs) {
+      final data = d.data();
+      final accFrac = (data['accuracy'] ?? 0).toDouble(); // 0..1
+      accSum += accFrac;
+    }
+    final avgPercent = done == 0 ? 0 : ((accSum / done) * 100).round();
+    return {'done': done, 'avg': avgPercent};
   }
 
   Future<List<int>> getDailyActivityThisMonth() async {

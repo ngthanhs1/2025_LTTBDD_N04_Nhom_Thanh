@@ -38,7 +38,7 @@ class _DoiMatKhauScreenState extends State<DoiMatKhauScreen> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6C4CE3),
+                backgroundColor: const Color.fromARGB(255, 209, 208, 212),
                 minimumSize: const Size(double.infinity, 48),
               ),
               child: const Text('Lưu'),

@@ -125,13 +125,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     _StatCard(
                       icon: Icons.check_circle_outline,
                       title: AppLocalizations.of(context).statQuizzesDone,
-                      value: '${stats['quizDone']}',
+                      value: '${stats['quizDoneToday']}',
                       color: Colors.grey.shade100,
                     ),
                     _StatCard(
                       icon: Icons.speed_outlined,
                       title: AppLocalizations.of(context).statAverageScore,
-                      value: '${stats['avgScore']}%',
+                      value: '${stats['avgScoreToday']}%',
                       color: Colors.grey.shade100,
                     ),
                   ],
@@ -288,6 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FirestoreService.instance.countFlashTopics(), // 4
       FirestoreService.instance.countAllFlashcards(), // 5
       FirestoreService.instance.getDailyActivityThisMonth(), // 6
+      FirestoreService.instance.getTodayQuizStats(), // 7
     ]);
 
     final quizSummary = (results[0] as Map<String, dynamic>);
@@ -297,9 +298,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final flashTopics = results[4] as int;
     final flashTotal = results[5] as int;
     final dailyUsage = (results[6] as List).cast<int>();
+    final todayQuiz = (results[7] as Map<String, int>);
 
-    final quizDone = (quizSummary['done'] ?? 0) as int;
-    final avgScore = (quizSummary['accuracy'] ?? 0) as int;
+    // Hộp "Hôm nay": hiển thị dữ liệu của RIÊNG hôm nay cho Quiz
+    final quizDoneToday = (todayQuiz['done'] ?? 0);
+    final avgScoreToday = (todayQuiz['avg'] ?? 0);
+    // Tổng quan Quiz (tất cả): dùng kết quả tổng hợp
+    final quizDoneAll = (quizSummary['done'] ?? 0) as int;
+    final avgScoreAll = (quizSummary['accuracy'] ?? 0) as int;
     final flashDone = (flashSummary['done'] ?? 0) as int;
     final flashAccuracy = (flashSummary['accuracy'] ?? 0) as int;
 
@@ -312,8 +318,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _cachedStats = {
       'studyTime': studyTimeTodayMinutes,
-      'quizDone': quizDone,
-      'avgScore': avgScore,
+      // Sử dụng số liệu của hôm nay cho khu vực Hôm nay
+      'quizDoneToday': quizDoneToday,
+      'avgScoreToday': avgScoreToday,
+      // Số liệu tổng quan cho các thẻ bên dưới
+      'quizDone': quizDoneAll,
+      'avgScore': avgScoreAll,
       'quizTopics': quizTopics,
       'quizQuestions': quizQuestions,
       'flashTopics': flashTopics,
